@@ -172,7 +172,7 @@ class HybridSymptomChecker:
         """
         Select the most informative symptom to ask next.
         
-        Prioritizes symptoms that differentiate between top diseases.
+        Uses adaptive strategy based on current confidence levels.
         """
         available = self.get_available_symptoms()
 
@@ -183,13 +183,48 @@ class HybridSymptomChecker:
         sorted_diseases = sorted(
             self.scores.items(), key=lambda x: x[1], reverse=True
         )
+        
+        # If no strong candidates yet, prioritize high-value symptoms
+        if not sorted_diseases or sorted_diseases[0][1] <= 2:
+            # Ask symptoms with highest diagnostic value across all diseases
+            symptom_values = {}
+            for symptom in available:
+                total_value = 0
+                for disease, rules in self.symptom_rules.items():
+                    if symptom in rules:
+                        total_value += rules[symptom]
+                symptom_values[symptom] = total_value
+            
+            return max(symptom_values.items(), key=lambda x: x[1])[0]
+
         top_diseases = [d[0] for d in sorted_diseases[:3] if d[1] > 0]
 
-        if not top_diseases:
-            # No strong candidates yet, ask any symptom
-            return available[0]
+        # Adaptive strategy based on confidence level
+        top_score = sorted_diseases[0][1]
+        
+        if top_score >= 6:
+            # High confidence: focus on confirming top disease
+            top_disease = top_diseases[0]
+            best_symptom = None
+            best_value = -1
+            
+            for symptom in available:
+                if symptom in self.symptom_rules[top_disease]:
+                    value = self.symptom_rules[top_disease][symptom]
+                    # Bonus for symptoms not in other top diseases
+                    exclusivity_bonus = 2 if not any(
+                        symptom in self.symptom_rules[d] for d in top_diseases[1:]
+                    ) else 0
+                    total_value = value + exclusivity_bonus
+                    
+                    if total_value > best_value:
+                        best_value = total_value
+                        best_symptom = symptom
+            
+            if best_symptom:
+                return best_symptom
 
-        # Find symptom that appears in some but not all top diseases
+        # Medium confidence: differentiate between top candidates
         best_symptom = None
         best_score = -1
 
@@ -203,12 +238,27 @@ class HybridSymptomChecker:
                 symptom_importance = sum(
                     self.symptom_rules[d].get(symptom, 0) for d in top_diseases
                 )
-                if symptom_importance > best_score:
-                    best_score = symptom_importance
+                # Higher weight for differentiation
+                differentiation_bonus = (len(top_diseases) - appears_in) * 2
+                total_score = symptom_importance + differentiation_bonus
+                
+                if total_score > best_score:
+                    best_score = total_score
                     best_symptom = symptom
 
-        # Fallback to first available if no differentiator found
-        return best_symptom or available[0]
+        # Fallback to highest value symptom
+        if not best_symptom:
+            symptom_values = {}
+            for symptom in available:
+                total_value = 0
+                for disease, rules in self.symptom_rules.items():
+                    if symptom in rules:
+                        total_value += rules[symptom]
+                symptom_values[symptom] = total_value
+            
+            best_symptom = max(symptom_values.items(), key=lambda x: x[1])[0]
+
+        return best_symptom
 
     def ask_next(self):
         """
@@ -217,6 +267,28 @@ class HybridSymptomChecker:
         Returns:
             Tuple of (symptom_id, question_text) or None if no more questions
         """
+        # Check if we have high confidence in current diagnosis
+        sorted_scores = sorted(
+            self.scores.items(), key=lambda x: x[1], reverse=True
+        )
+        
+        # Early stopping conditions
+        if len(sorted_scores) > 1:
+            top_score = sorted_scores[0][1]
+            second_score = sorted_scores[1][1]
+            
+            # Stop if top disease has high confidence and significant lead
+            if top_score >= 8 and (top_score - second_score) >= 4:
+                return None
+            
+            # Stop if top disease has very high confidence
+            if top_score >= 12:
+                return None
+            
+            # Stop if we've asked enough questions and have a clear winner
+            if len(self.asked_symptoms) >= 4 and top_score >= 6 and (top_score - second_score) >= 3:
+                return None
+        
         symptom = self.get_best_symptom()
 
         if symptom is None:

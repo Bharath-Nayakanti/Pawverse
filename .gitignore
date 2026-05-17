@@ -5,3 +5,37 @@ data/
 models/
 .ipynb_checkpoints/
 .DS_Store
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Web/React
+WEB/node_modules/
+WEB/frontend/
+WEB/dist/
+WEB/build/
+WEB/.vite/
+WEB/.cache/
+
+# Backend/local runtime
+backend/.env
+backend/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Python local environment and generated files
+venv/
+.venv/
+**/__pycache__/
+*.pyo
+*.pyd
+ML/metrics/
+
+# Build/test output
+dist/
+build/
+coverage/
+.pytest_cache/

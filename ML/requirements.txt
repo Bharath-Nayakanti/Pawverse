@@ -6,3 +6,13 @@ matplotlib
 scikit-learn
 tqdm
 Pillow
+
+# Web API (FastAPI)
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic
+requests
+
+# Additional utilities
+python-dotenv

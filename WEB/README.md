@@ -1,57 +1,69 @@
-# 🌐 PawVerse Web Application
+# Pawverse Pet Health - Web Application
 
-Flask/FastAPI web interface and API for the PawVerse AI Pet Health Assistant.
+React frontend for the Pawverse Pet Health Assistant, an AI-powered pet health diagnosis tool.
 
-## Directory Structure
+## Prerequisites
 
-```
-WEB/
-├── app.py                 # Main web application (Flask/FastAPI)
-├── api/                   # API endpoints
-├── templates/             # HTML templates
-├── static/                # CSS, JavaScript, images
-├── config.py              # Configuration
-└── requirements.txt       # Dependencies
-```
+- Node.js 18+ and npm
+- Python 3.8+ with virtual environment
+- ML models trained and available in `ML/models/`
 
-## Setup
+## Running the Application
 
-1. **Navigate to WEB directory:**
-   ```bash
-   cd WEB
-   ```
+### 1. Start the FastAPI Backend
 
-2. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+From the project root:
 
-## Usage
-
-**Start the web server:**
 ```bash
-python app.py
+cd ML
+source ../venv/bin/activate  # or activate your venv
+python api.py
 ```
 
-Access the application at: `http://localhost:5000` (Flask) or `http://localhost:8000` (FastAPI)
+The API will run on `http://localhost:8000`
 
-## Features
+### 2. Start the React Frontend
 
-- 📷 Image upload and analysis
-- 🩺 Symptom questionnaire
-- 🐾 Pet species detection
-- 📊 Combined diagnosis results
-- 🔗 API endpoints for integration
+From the WEB directory:
+
+```bash
+cd WEB
+npm install  # First time only
+npm run dev
+```
+
+The frontend will run on `http://localhost:5173`
+
+## Application Structure
+
+- **Home Page**: Landing page with feature overview
+- **Health Analysis Page**: Interactive ML-powered pet health diagnosis
+  - Species selection (dog/cat)
+  - Image upload and analysis
+  - Species mismatch detection
+  - Symptom questionnaire (8 adaptive questions)
+  - Combined diagnosis with confidence scores
 
 ## API Endpoints
 
-- `POST /api/predict/disease` - Predict disease from image
-- `POST /api/predict/species` - Detect pet species
-- `POST /api/symptom/check` - Run symptom analysis
-- `POST /api/diagnose` - Combined diagnosis
+- `POST /predict/species` - Predict species from image
+- `POST /predict/disease` - Predict disease from image
+- `POST /symptom/start` - Start symptom checker session
+- `POST /symptom/answer` - Submit symptom answer
+- `GET /symptom/results/{session_id}` - Get symptom results
+- `POST /diagnosis/combine` - Combine image and symptom results
 
-## Note
+## Building for Production
 
-The web application uses the ML models from `../ML/`. Ensure ML models are trained before running the web app.
+```bash
+cd WEB
+npm run build
+```
 
-See `../ML/README.md` for details on training models.
+The built files will be in the `dist/` directory.
+
+## Tech Stack
+
+- **Frontend**: React 19, Vite, React Router, Lucide Icons
+- **Backend**: FastAPI, PyTorch, TorchVision
+- **ML Models**: EfficientNet-B0 for disease and species classification
