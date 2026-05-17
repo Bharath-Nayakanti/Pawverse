@@ -1,147 +1,145 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Activity, Calendar, Stethoscope, Heart, LogOut, PawPrint, User } from 'lucide-react'
+import { AlertTriangle, CalendarClock, CheckCircle, HeartPulse, Plus, Syringe } from 'lucide-react'
+import { careApi } from '../api'
+import PetCard from '../components/PetCard'
+import { EmptyState, LoadingState } from '../components/StateViews'
 import { useAuth } from '../auth/useAuth'
-import PageNavigation from '../components/PageNavigation'
-import { getAnalysisStats } from '../utils/analysisStats'
-import './Dashboard.css'
+import { usePets } from '../context/usePets'
+import { getOnboardingState } from '../utils/onboarding'
+import './Platform.css'
 
 function Dashboard() {
   const navigate = useNavigate()
-  const { user, logout } = useAuth()
-  const [userStats] = useState(() => getAnalysisStats(user))
+  const { user } = useAuth()
+  const { pets, selectedPet, loading, refreshPets } = usePets()
+  const [reminders, setReminders] = useState([])
+  const [insights, setInsights] = useState([])
+  const [vaccines, setVaccines] = useState([])
 
-  const handleLogout = async () => {
-    await logout()
-    navigate('/login', { replace: true })
-  }
+  useEffect(() => {
+    const onboarding = getOnboardingState(user)
+    if (!onboarding.completed && !onboarding.skipped) {
+      navigate('/welcome', { replace: true })
+    }
+  }, [navigate, user])
 
-  const displayName = user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : 'Pet parent'
-  const initials = displayName
-    .split(' ')
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase()
-  const lastAnalysisLabel = userStats.lastAnalysis
-    ? new Date(userStats.lastAnalysis).toLocaleDateString()
-    : 'No analyses yet'
+  useEffect(() => {
+    const loadDashboard = async () => {
+      const [reminderData, vaccineData] = await Promise.all([
+        careApi.listReminders(),
+        careApi.listVaccines()
+      ])
+      setReminders(reminderData.reminders || [])
+      setVaccines(vaccineData.vaccines || [])
+    }
+    loadDashboard().catch(() => {})
+  }, [pets.length])
+
+  useEffect(() => {
+    if (!selectedPet?.id) return
+    careApi.insights(selectedPet.id)
+      .then((data) => setInsights(data.insights || []))
+      .catch(() => setInsights([]))
+  }, [selectedPet?.id])
+
+  const stats = useMemo(() => ({
+    pets: pets.length,
+    overdue: reminders.filter((item) => item.status === 'overdue' || new Date(item.due_at || item.dueAt) < new Date()).length,
+    vaccines: vaccines.filter((item) => item.status !== 'completed').length,
+    alerts: insights.filter((item) => ['high', 'emergency'].includes(item.severity)).length
+  }), [pets, reminders, vaccines, insights])
+
+  const todayReminders = useMemo(() => reminders
+    .filter((item) => new Date(item.snoozed_until || item.due_at || item.dueAt).toDateString() === new Date().toDateString())
+    .slice(0, 6), [reminders])
+
+  const overdueReminders = useMemo(() => reminders
+    .filter((item) => item.status === 'overdue')
+    .slice(0, 4), [reminders])
+
+  if (loading) return <LoadingState label="Loading your pet care dashboard..." />
 
   return (
-    <div className="dashboard-container">
-      <header className="dashboard-header">
-        <div className="header-content">
-          <div className="logo-section">
-            <PawPrint className="logo-icon" />
-            <h1>Pawverse</h1>
-          </div>
-          <PageNavigation className="dashboard-navigation" />
-          <div className="user-section">
-            <div className="user-info">
-              <div className="user-avatar" aria-hidden="true">{initials}</div>
-              <div className="user-details">
-                <span className="user-name">{displayName}</span>
-                <span className="user-email">{user?.email}</span>
-              </div>
-            </div>
-            <button className="logout-btn" type="button" onClick={handleLogout}>
-              <LogOut className="icon" />
-              Logout
-            </button>
-          </div>
+    <main className="platform-page">
+      <section className="hero-band">
+        <div>
+          <p className="eyebrow">AI pet care ecosystem</p>
+          <h1>Good care starts with one calm dashboard.</h1>
+          <p>Manage pets, vaccines, reminders, feeding, health history, and AI risk signals without losing the thread.</p>
         </div>
-      </header>
+        <Link className="primary-action" to="/onboarding"><Plus /> Add pet</Link>
+      </section>
 
-      <main className="dashboard-main">
-        <div className="welcome-section">
-          <h2>Welcome, {user?.firstName || 'there'}.</h2>
-          <p>Monitor your pet's health with AI-powered analysis tools</p>
-        </div>
+      <section className="metric-grid">
+        <article><HeartPulse /><strong>{stats.pets}</strong><span>Pets</span></article>
+        <article><CalendarClock /><strong>{stats.overdue}</strong><span>Overdue tasks</span></article>
+        <article><Syringe /><strong>{stats.vaccines}</strong><span>Open vaccines</span></article>
+        <article><AlertTriangle /><strong>{stats.alerts}</strong><span>Health alerts</span></article>
+      </section>
 
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-icon">
-              <Activity className="icon" />
+      {!pets.length ? (
+        <EmptyState
+          title="No pets yet"
+          message="Add your first pet to generate schedules, vaccines, feeding plans, records, and AI insights."
+          action={<Link className="primary-action" to="/onboarding">Start onboarding</Link>}
+        />
+      ) : (
+        <section className="dashboard-grid">
+          <div className="panel-span">
+            <div className="section-title">
+              <h2>Your pets</h2>
+              <button type="button" onClick={refreshPets}>Refresh</button>
             </div>
-            <div className="stat-content">
-              <h3>{userStats.totalAnalyses}</h3>
-              <p>Total Analyses</p>
+            <div className="pet-grid">
+              {pets.map((pet) => (
+                <PetCard key={pet.id} pet={pet} reminders={reminders} insights={insights} />
+              ))}
             </div>
           </div>
 
-          <div className="stat-card">
-            <div className="stat-icon">
-              <Calendar className="icon" />
+          <aside className="care-card">
+            <h2>AI insights</h2>
+            <div className="insight-list">
+              {insights.map((insight, index) => (
+                <div className={`insight-card ${insight.severity}`} key={`${insight.title}-${index}`}>
+                  <strong>{insight.title}</strong>
+                  <p>{insight.summary}</p>
+                </div>
+              ))}
             </div>
-            <div className="stat-content">
-              <h3>{lastAnalysisLabel}</h3>
-              <p>Last Analysis</p>
-            </div>
-          </div>
+          </aside>
 
-          <div className="stat-card">
-            <div className="stat-icon">
-              <Heart className="icon" />
+          <section className="care-card">
+            <h2>Today</h2>
+            <div className="timeline">
+              {todayReminders.map((reminder) => (
+                <article key={reminder.id}>
+                  <span>{reminder.type}</span>
+                  <strong>{reminder.title}</strong>
+                  <p>{new Date(reminder.snoozed_until || reminder.due_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · {reminder.status}</p>
+                </article>
+              ))}
+              {!todayReminders.length && <p>No care tasks due today.</p>}
             </div>
-            <div className="stat-content">
-              <h3>Healthy</h3>
-              <p>Pet Status</p>
-            </div>
-          </div>
-        </div>
+          </section>
 
-        <div className="actions-grid">
-          <Link to="/health-analysis" className="action-card primary">
-            <div className="action-icon">
-              <Stethoscope className="icon" />
+          <section className="care-card">
+            <h2>Overdue</h2>
+            <div className="timeline">
+              {overdueReminders.map((reminder) => (
+                <article key={reminder.id}>
+                  <span>{reminder.type}</span>
+                  <strong>{reminder.title}</strong>
+                  <p>{new Date(reminder.due_at).toLocaleString()}</p>
+                </article>
+              ))}
+              {!overdueReminders.length && <p><CheckCircle /> No overdue tasks.</p>}
             </div>
-            <div className="action-content">
-              <h3>Health Analysis</h3>
-              <p>Start a new pet health analysis with AI</p>
-            </div>
-            <div className="action-arrow">→</div>
-          </Link>
-
-          <div className="action-card secondary">
-            <div className="action-icon">
-              <Activity className="icon" />
-            </div>
-            <div className="action-content">
-              <h3>Analysis History</h3>
-              <p>View your previous health analyses</p>
-            </div>
-            <div className="action-arrow">→</div>
-          </div>
-
-          <div className="action-card secondary">
-            <div className="action-icon">
-              <User className="icon" />
-            </div>
-            <div className="action-content">
-              <h3>Profile Settings</h3>
-              <p>Manage your account and preferences</p>
-            </div>
-            <div className="action-arrow">→</div>
-          </div>
-        </div>
-
-        <div className="info-section">
-          <div className="tips-card">
-            <h3>💡 Quick Tips</h3>
-            <ul>
-              <li>Upload clear images for better disease detection accuracy</li>
-              <li>Answer symptom questions honestly for accurate diagnosis</li>
-              <li>Regular health checks help monitor your pet's condition</li>
-              <li>Always consult a veterinarian for serious health concerns</li>
-            </ul>
-          </div>
-        </div>
-      </main>
-
-      <footer className="dashboard-footer">
-        <p>⚠️ This tool is for informational purposes only. Always consult a licensed veterinarian.</p>
-      </footer>
-    </div>
+          </section>
+        </section>
+      )}
+    </main>
   )
 }
 

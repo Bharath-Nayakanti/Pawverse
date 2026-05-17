@@ -6,7 +6,16 @@ const rateLimit = require('express-rate-limit');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const authRoutes = require('./routes/auth');
+const appointmentRoutes = require('./routes/appointments');
+const feedingRoutes = require('./routes/feeding');
+const healthRecordRoutes = require('./routes/healthRecords');
+const insightRoutes = require('./routes/insights');
+const petRoutes = require('./routes/pets');
+const scheduleRoutes = require('./routes/schedules');
+const uploadRoutes = require('./routes/uploads');
+const vaccineRoutes = require('./routes/vaccines');
 const { authenticateToken } = require('./middleware/auth');
+const { startReminderLifecycleJob } = require('./jobs/reminderLifecycleJob');
 
 const app = express();
 const PORT = process.env.PORT || 8001;
@@ -19,20 +28,25 @@ const allowedOrigins = new Set([
   'http://localhost:5173'
 ]);
 
+const isLocalDevOrigin = (origin) => {
+  if (process.env.NODE_ENV === 'production') return false;
+  return /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin);
+};
+
 // Security middleware
 app.use(helmet());
 
 // CORS configuration
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || allowedOrigins.has(origin)) {
+    if (!origin || allowedOrigins.has(origin) || isLocalDevOrigin(origin)) {
       callback(null, true);
       return;
     }
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
@@ -63,6 +77,17 @@ app.get('/health', (req, res) => {
 // Authentication routes
 app.use('/api/auth', authRoutes);
 
+// Pet care platform routes
+app.use('/api/pets', authenticateToken, petRoutes);
+app.use('/api/schedules', authenticateToken, scheduleRoutes);
+app.use('/api/reminders', authenticateToken, scheduleRoutes);
+app.use('/api/vaccines', authenticateToken, vaccineRoutes);
+app.use('/api/feeding', authenticateToken, feedingRoutes);
+app.use('/api/health-records', authenticateToken, healthRecordRoutes);
+app.use('/api/appointments', authenticateToken, appointmentRoutes);
+app.use('/api/insights', authenticateToken, insightRoutes);
+app.use('/api/uploads', authenticateToken, uploadRoutes);
+
 // Proxy ML service requests
 const mlServiceUrl = process.env.ML_SERVICE_URL || 'http://localhost:8000';
 
@@ -86,6 +111,10 @@ const mlProxy = createProxyMiddleware({
 });
 
 // ML service routes (proxied to ML service)
+// Breed detection endpoint doesn't require authentication
+app.use('/api/ml/predict/breed', mlProxy);
+app.use('/api/ml/predict/species', mlProxy);
+// Other ML endpoints require authentication
 app.use('/api/ml', authenticateToken, mlProxy);
 
 // Direct ML endpoints for backward compatibility
@@ -114,6 +143,7 @@ app.listen(PORT, () => {
   console.log(`🔐 Auth endpoints: http://localhost:${PORT}/api/auth`);
   console.log(`🤖 ML proxy: http://localhost:${PORT}/api/ml`);
   console.log(`🔗 ML service: ${mlServiceUrl}`);
+  startReminderLifecycleJob();
 });
 
 module.exports = app;

@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, HeartPulse, Lock, Mail, PawPrint, UserRound } from 'lucide-react'
 import { useAuth } from '../auth/useAuth'
 import PageNavigation from '../components/PageNavigation'
+import { getOnboardingState } from '../utils/onboarding'
 import './Auth.css'
 
 function Auth({ mode }) {
@@ -37,15 +38,17 @@ function Auth({ mode }) {
     setSubmitting(true)
 
     try {
+      let authedUser
       if (isSignup) {
-        await signup(form)
+        authedUser = await signup(form)
       } else {
-        await login({
+        authedUser = await login({
           email: form.email,
           password: form.password
         })
       }
-      navigate(from, { replace: true })
+      const onboarding = getOnboardingState(authedUser)
+      navigate(onboarding.completed || onboarding.skipped ? from : '/welcome', { replace: true })
     } catch (err) {
       setError(err.message || 'Authentication failed')
     } finally {

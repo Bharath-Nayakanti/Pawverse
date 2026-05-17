@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { authApi, tokenStorage } from '../api'
+import { ApiError, authApi, tokenStorage } from '../api'
 import { AuthContext } from './auth-context'
 
 export function AuthProvider({ children }) {
@@ -16,13 +16,19 @@ export function AuthProvider({ children }) {
         return
       }
 
+      if (tokens.user && mounted) {
+        setUser(tokens.user)
+      }
+
       try {
         const data = await authApi.profile()
         if (mounted) {
           setUser(data.user)
         }
-      } catch {
-        tokenStorage.clear()
+      } catch (err) {
+        if (err instanceof ApiError && err.status > 0 && err.status !== 503) {
+          tokenStorage.clear()
+        }
       } finally {
         if (mounted) {
           setLoading(false)
@@ -39,14 +45,14 @@ export function AuthProvider({ children }) {
 
   const login = async (credentials) => {
     const data = await authApi.login(credentials)
-    tokenStorage.set(data.tokens)
+    tokenStorage.set(data.tokens, data.user)
     setUser(data.user)
     return data.user
   }
 
   const signup = async (payload) => {
     const data = await authApi.register(payload)
-    tokenStorage.set(data.tokens)
+    tokenStorage.set(data.tokens, data.user)
     setUser(data.user)
     return data.user
   }

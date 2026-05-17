@@ -9,8 +9,12 @@ export const tokenStorage = {
       return null;
     }
   },
-  set(tokens) {
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(tokens));
+  set(tokens, user) {
+    const existing = this.get();
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
+      ...tokens,
+      user: user || existing?.user || null
+    }));
   },
   clear() {
     localStorage.removeItem(AUTH_STORAGE_KEY);
@@ -28,6 +32,14 @@ const getErrorMessage = async (response) => {
     return 'Request failed';
   }
 };
+
+export class ApiError extends Error {
+  constructor(message, status) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+  }
+}
 
 const refreshSession = async () => {
   const tokens = tokenStorage.get();
@@ -47,7 +59,7 @@ const refreshSession = async () => {
   }
 
   const data = await response.json();
-  tokenStorage.set(data.tokens);
+  tokenStorage.set(data.tokens, data.user);
   return data;
 };
 
@@ -66,10 +78,15 @@ const request = async (path, options = {}, needsAuth = true, allowRefresh = true
     }
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
-    headers
-  });
+  let response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      ...options,
+      headers
+    });
+  } catch (error) {
+    throw new ApiError(error.message || 'Network request failed', 0);
+  }
 
   if (response.status === 401 && needsAuth && allowRefresh) {
     await refreshSession();
@@ -77,7 +94,7 @@ const request = async (path, options = {}, needsAuth = true, allowRefresh = true
   }
 
   if (!response.ok) {
-    throw new Error(await getErrorMessage(response));
+    throw new ApiError(await getErrorMessage(response), response.status);
   }
 
   return response.json();
@@ -166,6 +183,142 @@ export const api = {
         image_result: imageResult,
         symptom_result: symptomResult
       })
+    });
+  },
+
+  predictBreed(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return request('/api/ml/predict/breed', {
+      method: 'POST',
+      body: formData
+    });
+  }
+};
+
+export const careApi = {
+  listPets() {
+    return request('/api/pets');
+  },
+
+  createPet(payload) {
+    return request('/api/pets', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  updatePet(id, payload) {
+    return request(`/api/pets/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  addPetImage(petId, payload) {
+    return request(`/api/pets/${petId}/images`, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  listReminders(petId) {
+    return request(`/api/schedules${petId ? `?petId=${petId}` : ''}`);
+  },
+
+  createReminder(payload) {
+    return request('/api/schedules/templates', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  listScheduleTemplates(petId) {
+    return request(`/api/schedules/templates${petId ? `?petId=${petId}` : ''}`);
+  },
+
+  generateSchedule(petId) {
+    return request('/api/schedules/generate', {
+      method: 'POST',
+      body: JSON.stringify({ petId })
+    });
+  },
+
+  completeReminder(reminderId) {
+    return request(`/api/schedules/${reminderId}/action`, {
+      method: 'PATCH',
+      body: JSON.stringify({ action: 'complete' })
+    });
+  },
+
+  updateReminder(reminderId, payload) {
+    return request(`/api/schedules/${reminderId}/action`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  listVaccines(petId) {
+    return request(`/api/vaccines${petId ? `?petId=${petId}` : ''}`);
+  },
+
+  vaccineRecommendations(petId, region = 'US') {
+    return request(`/api/vaccines/recommendations/${petId}?region=${encodeURIComponent(region)}`);
+  },
+
+  createVaccine(payload) {
+    return request('/api/vaccines', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  listFeedingPlans(petId) {
+    return request(`/api/feeding${petId ? `?petId=${petId}` : ''}`);
+  },
+
+  feedingRecommendation(petId) {
+    return request(`/api/feeding/recommendations/${petId}`);
+  },
+
+  saveFeedingPlan(payload) {
+    return request('/api/feeding', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  listHealthRecords(petId) {
+    return request(`/api/health-records${petId ? `?petId=${petId}` : ''}`);
+  },
+
+  createHealthRecord(payload) {
+    return request('/api/health-records', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  listAppointments(petId) {
+    return request(`/api/appointments${petId ? `?petId=${petId}` : ''}`);
+  },
+
+  createAppointment(payload) {
+    return request('/api/appointments', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  insights(petId) {
+    return request(`/api/insights/${petId}`);
+  },
+
+  analyzeSymptoms(payload) {
+    return request('/api/insights/symptoms/analyze', {
+      method: 'POST',
+      body: JSON.stringify(payload)
     });
   }
 };
