@@ -18,6 +18,7 @@ import io
 # Import ML modules
 from predict_disease_unified import predict_disease, load_model, build_model
 from predict_species import predict_species as predict_species_func
+from predict_full import predict_full
 from hybrid_symptom_chatbot import HybridSymptomChecker, DISEASE_INFO
 
 # ============================================================================
@@ -78,6 +79,32 @@ class SymptomStartResponse(BaseModel):
     session_id: str
     first_question: SymptomQuestion
     max_questions: int
+
+class BreedResponse(BaseModel):
+    species: str
+    species_confidence: float
+    breed: str
+    breed_confidence: float
+    top_breeds: List[Dict[str, Any]]
+    similar_breeds: List[str]
+    model_metadata: Dict[str, Any]
+
+class FeedingRecommendationRequest(BaseModel):
+    species: str
+    breed: Optional[str] = None
+    age_years: Optional[float] = 1
+    weight_kg: Optional[float] = 10
+    activity_level: Optional[str] = "moderate"
+
+class VaccineRecommendationRequest(BaseModel):
+    species: str
+    breed: Optional[str] = None
+    age_years: Optional[float] = 1
+    region: Optional[str] = "US"
+
+class SymptomAnalysisRequest(BaseModel):
+    species: str
+    symptoms: List[str]
 
 # ============================================================================
 # TRANSFORM
@@ -151,6 +178,43 @@ async def predict_species(file: UploadFile = File(...)):
         
         return SpeciesResponse(species=species, confidence=confidence)
         
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/predict/breed", response_model=BreedResponse)
+async def predict_breed(file: UploadFile = File(...)):
+    """
+    Predict pet species and breed from an uploaded image.
+
+    Returns confidence scores, top alternatives, lightweight metadata, and similar breeds.
+    """
+    try:
+        image_bytes = await file.read()
+        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+
+        temp_path = Path("temp/temp_breed_image.jpg")
+        temp_path.parent.mkdir(exist_ok=True)
+        image.save(temp_path)
+
+        result = predict_full(temp_path)
+        temp_path.unlink(missing_ok=True)
+
+        return BreedResponse(
+            species=result["animal"].lower(),
+            species_confidence=result["animal_confidence"],
+            breed=result["breed"],
+            breed_confidence=result["breed_confidence"],
+            top_breeds=result["top_breeds"],
+            similar_breeds=result["similar_breeds"],
+            model_metadata={
+                "model": "efficientnet_b0",
+                "task": "species_and_breed_classification",
+                "explainability": "top-k alternatives and similar-breed hints",
+                "low_confidence_threshold": 0.60,
+            }
+        )
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -415,6 +479,95 @@ async def analyze_symptoms_direct(
         print(f"Error in analyze_symptoms_direct: {e}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/symptom/analyze-advanced")
+async def analyze_symptoms_advanced(payload: SymptomAnalysisRequest):
+    emergency_terms = ["collapse", "seizure", "trouble breathing", "poison", "bleeding", "unconscious"]
+    high_terms = ["vomiting", "lethargy", "blood", "pain", "not eating"]
+    moderate_terms = ["itching", "limping", "cough", "diarrhea"]
+    symptoms = [symptom.lower() for symptom in payload.symptoms]
+
+    emergency_hits = [symptom for symptom in symptoms if any(term in symptom for term in emergency_terms)]
+    high_hits = [symptom for symptom in symptoms if any(term in symptom for term in high_terms)]
+    moderate_hits = [symptom for symptom in symptoms if any(term in symptom for term in moderate_terms)]
+    urgency_score = min(100, len(emergency_hits) * 45 + len(high_hits) * 25 + len(moderate_hits) * 15 + len(symptoms) * 5)
+    severity = "emergency" if urgency_score >= 75 else "high" if urgency_score >= 45 else "moderate" if urgency_score >= 25 else "low"
+
+    recommendation = {
+        "emergency": "Seek emergency veterinary care immediately.",
+        "high": "Visit a veterinarian within 24 hours.",
+        "moderate": "Monitor closely and schedule a vet visit if symptoms persist.",
+        "low": "Track symptoms and continue routine care."
+    }[severity]
+
+    return {
+        "species": payload.species,
+        "symptoms": payload.symptoms,
+        "urgency_score": urgency_score,
+        "severity": severity,
+        "confidence": 0.82 if len(symptoms) >= 2 else 0.62,
+        "emergency_detected": severity == "emergency",
+        "recommendation": recommendation,
+        "explainability": {
+            "emergency_matches": emergency_hits,
+            "high_risk_matches": high_hits,
+            "moderate_matches": moderate_hits
+        }
+    }
+
+@app.post("/feeding/recommend")
+async def recommend_feeding(payload: FeedingRecommendationRequest):
+    weight = max(payload.weight_kg or 10, 1)
+    activity_multiplier = {"low": 1.2, "moderate": 1.6, "high": 2.0}.get(payload.activity_level or "moderate", 1.6)
+    rer = 70 * (weight ** 0.75)
+    calories = round(rer * activity_multiplier)
+    meals = 3 if (payload.age_years or 1) < 1 else 2
+
+    return {
+        "calories_per_day": calories,
+        "meals_per_day": meals,
+        "quantity_per_meal": f"{round(calories / meals)} kcal per meal",
+        "hydration_goal_ml": round(weight * 55),
+        "feeding_times": ["07:30", "13:00", "19:00"] if meals == 3 else ["08:00", "19:00"],
+        "food_suggestions": [
+            "Complete and balanced life-stage food",
+            "Prioritize high-quality animal protein",
+            "Keep treats under 10% of daily calories"
+        ],
+        "confidence": 0.82,
+        "model_metadata": {
+            "method": "resting_energy_requirement_x_activity_factor",
+            "explainability": "calories derived from weight and activity level"
+        }
+    }
+
+@app.post("/vaccines/recommend")
+async def recommend_vaccines(payload: VaccineRecommendationRequest):
+    species = payload.species.lower()
+    catalog = {
+        "dog": ["DHPP", "Rabies", "Parvo", "Bordetella"],
+        "cat": ["FVRCP", "Rabies", "FeLV"]
+    }.get(species, ["Rabies"])
+    age_years = payload.age_years or 1
+    status = "overdue" if age_years > 1 else "suggested"
+
+    return {
+        "species": species,
+        "region": payload.region,
+        "recommendations": [
+            {
+                "vaccine_name": name,
+                "status": status,
+                "confidence": 0.88,
+                "explainability": f"{name} is commonly recommended for {species}s based on age and region."
+            }
+            for name in catalog
+        ],
+        "model_metadata": {
+            "method": "rules_based_species_age_region_schedule",
+            "version": "1.0.0"
+        }
+    }
 
 @app.post("/diagnosis/combine")
 
