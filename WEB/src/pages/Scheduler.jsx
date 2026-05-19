@@ -4,9 +4,12 @@ import {
   Check,
   CheckCircle,
   Clock3,
+  Pencil,
   RotateCcw,
+  Save,
   ShieldPlus,
   SkipForward,
+  X,
   Utensils
 } from 'lucide-react'
 import { careApi } from '../api'
@@ -41,7 +44,46 @@ const formatTime = (value) => new Date(value).toLocaleTimeString([], {
   minute: '2-digit'
 })
 
+const toDateInputValue = (value) => dateKey(value)
+
+const applyDateToReminderTime = (reminder, dateValue) => {
+  const original = new Date(reminder.due_at)
+  const [year, month, day] = dateValue.split('-').map(Number)
+  original.setFullYear(year, month - 1, day)
+  return original.toISOString()
+}
+
 const getEffectiveDate = (reminder) => new Date(reminder.snoozed_until || reminder.due_at)
+
+const vaccineGroupKey = (reminder) => (
+  reminder.schedule_template_id || reminder.title?.toLowerCase() || reminder.id
+)
+
+const vaccineRank = (reminder) => {
+  const statusRank = ['pending', 'overdue', 'snoozed'].includes(reminder.status) ? 0 : 1
+  const templateDateRank = (
+    reminder.schedule_start_date &&
+    dateKey(reminder.due_at) === dateKey(reminder.schedule_start_date)
+  ) ? -2 : 0
+  const rescheduleRank = reminder.metadata?.rescheduledFrom ? -1 : 0
+  return statusRank + templateDateRank + rescheduleRank
+}
+
+const pickVisibleVaccine = (current, candidate) => {
+  if (!current) return candidate
+
+  const currentRank = vaccineRank(current)
+  const candidateRank = vaccineRank(candidate)
+  if (candidateRank !== currentRank) return candidateRank < currentRank ? candidate : current
+
+  const currentChangedAt = new Date(current.updated_at || current.created_at || current.due_at)
+  const candidateChangedAt = new Date(candidate.updated_at || candidate.created_at || candidate.due_at)
+  if (candidateChangedAt.getTime() !== currentChangedAt.getTime()) {
+    return candidateChangedAt > currentChangedAt ? candidate : current
+  }
+
+  return new Date(candidate.due_at) < new Date(current.due_at) ? candidate : current
+}
 
 const addMinutesFromReminder = (reminder, minutes) => {
   const base = getEffectiveDate(reminder)
@@ -62,10 +104,12 @@ function Scheduler() {
   const [loading, setLoading] = useState(false)
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
+  const [editingVaccineId, setEditingVaccineId] = useState(null)
+  const [vaccineDateDraft, setVaccineDateDraft] = useState('')
 
-  const load = useCallback(async () => {
+  const load = useCallback(async ({ generate = true } = {}) => {
     const [reminderData, templateData] = await Promise.all([
-      careApi.listReminders(selectedPet?.id),
+      careApi.listReminders(selectedPet?.id, { generate }),
       careApi.listScheduleTemplates(selectedPet?.id)
     ])
     setReminders(reminderData.reminders || [])
@@ -99,10 +143,23 @@ function Scheduler() {
     }))
   }, [days, reminders])
 
-  const vaccineSchedule = useMemo(() => reminders
-    .filter((reminder) => reminder.type === 'vaccine')
-    .sort((a, b) => new Date(a.due_at) - new Date(b.due_at))
-    .slice(0, 6), [reminders])
+  const vaccineSchedule = useMemo(() => {
+    const grouped = new Map()
+
+    reminders
+      .filter((reminder) => reminder.type === 'vaccine')
+      .forEach((reminder) => {
+        const key = vaccineGroupKey(reminder)
+        grouped.set(key, pickVisibleVaccine(grouped.get(key), reminder))
+      })
+
+    return Array.from(grouped.values())
+      .sort((a, b) => (
+        (a.title || '').localeCompare(b.title || '') ||
+        new Date(a.due_at) - new Date(b.due_at)
+      ))
+      .slice(0, 6)
+  }, [reminders])
 
   const otherTasks = useMemo(() => reminders
     .filter((reminder) => !['feeding', 'vaccine'].includes(reminder.type))
@@ -132,7 +189,7 @@ function Scheduler() {
     setNotice('')
     try {
       const data = await careApi.generateSchedule(selectedPet.id)
-      await load()
+      await load({ generate: false })
       setNotice(`Plan refreshed: ${data.templates?.length || 0} rules and ${data.reminders?.length || 0} scheduled tasks.`)
     } catch (err) {
       setError(err.message || 'Could not generate the care plan.')
@@ -146,10 +203,32 @@ function Scheduler() {
     setNotice('')
     try {
       await careApi.updateReminder(id, payload)
-      await load()
+      await load({ generate: false })
+      return true
     } catch (err) {
       setError(err.message || 'Could not update this reminder.')
+      return false
     }
+  }
+
+  const startVaccineEdit = (vaccine) => {
+    setEditingVaccineId(vaccine.id)
+    setVaccineDateDraft(toDateInputValue(vaccine.due_at))
+  }
+
+  const cancelVaccineEdit = () => {
+    setEditingVaccineId(null)
+    setVaccineDateDraft('')
+  }
+
+  const saveVaccineDate = async (vaccine) => {
+    if (!vaccineDateDraft) return
+
+    const saved = await runAction(vaccine.id, {
+      action: 'reschedule',
+      dueAt: applyDateToReminderTime(vaccine, vaccineDateDraft)
+    })
+    if (saved) cancelVaccineEdit()
   }
 
   const actionButtons = (reminder, compact = false) => (
@@ -235,10 +314,42 @@ function Scheduler() {
                 <div className="timeline-dot" />
                 <div>
                   <strong>{vaccine.title}</strong>
-                  <p>{new Date(vaccine.due_at).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                  {editingVaccineId === vaccine.id ? (
+                    <div className="vaccine-date-editor">
+                      <input
+                        type="date"
+                        value={vaccineDateDraft}
+                        onChange={(event) => setVaccineDateDraft(event.target.value)}
+                        aria-label={`Due date for ${vaccine.title}`}
+                      />
+                      <button type="button" title="Save date" onClick={() => saveVaccineDate(vaccine)}>
+                        <Save />
+                      </button>
+                      <button type="button" title="Cancel" onClick={cancelVaccineEdit}>
+                        <X />
+                      </button>
+                    </div>
+                  ) : (
+                    <p>{new Date(vaccine.due_at).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                  )}
                   <span>{statusLabel[vaccine.status] || vaccine.status}</span>
                 </div>
-                {actionButtons(vaccine)}
+                {['completed', 'skipped'].includes(vaccine.status) ? (
+                  actionButtons(vaccine)
+                ) : (
+                  <div className="vaccine-control-stack">
+                    <button
+                      type="button"
+                      className="vaccine-edit-button"
+                      title="Edit vaccine date"
+                      onClick={() => startVaccineEdit(vaccine)}
+                    >
+                      <Pencil />
+                      Edit date
+                    </button>
+                    {actionButtons(vaccine)}
+                  </div>
+                )}
               </article>
             )) : (
               <div className="planner-empty">

@@ -16,7 +16,9 @@ const { occurrenceActionSchema, scheduleTemplateSchema, validateBody } = require
 const router = express.Router();
 
 router.get('/', asyncHandler(async (req, res) => {
-  await generateOccurrencesForUser(req.user.id, { petId: req.query.petId, horizonDays: Number(req.query.horizonDays || 45) });
+  if (req.query.generate !== 'false') {
+    await generateOccurrencesForUser(req.user.id, { petId: req.query.petId, horizonDays: Number(req.query.horizonDays || 45) });
+  }
   const reminders = await listReminderOccurrences(req.user.id, {
     petId: req.query.petId || null,
     status: req.query.status || null

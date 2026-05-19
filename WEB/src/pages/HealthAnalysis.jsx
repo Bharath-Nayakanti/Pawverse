@@ -25,6 +25,7 @@ function HealthAnalysis() {
   const [currentQuestion, setCurrentQuestion] = useState(null)
   const [questionCount, setQuestionCount] = useState(0)
   const [maxQuestions, setMaxQuestions] = useState(8)
+  const [symptomAnswers, setSymptomAnswers] = useState({})
   const [symptomResult, setSymptomResult] = useState(null)
   
   // Final diagnosis
@@ -51,6 +52,65 @@ function HealthAnalysis() {
       desc: "Skin irritation or dermatitis, often due to infection or allergies.",
       advice: "Keep skin clean and consult a vet.",
     },
+  }
+
+  const symptomRules = {
+    dog: {
+      fungal_infection: {
+        circular_patches: 4,
+        hair_loss: 3,
+        scaly_skin: 3,
+        redness: 2,
+        odor: 2,
+      },
+      parasite_infection: {
+        itching: 4,
+        fleas: 4,
+        red_bumps: 3,
+        hair_loss: 2,
+        scabs: 2,
+      },
+      allergy: {
+        itching: 3,
+        redness: 3,
+        swelling: 2,
+        scratching: 2,
+      },
+      skin_inflammation: {
+        redness: 3,
+        rash: 3,
+        irritation: 2,
+        warmth: 2,
+      },
+    },
+    cat: {
+      fungal_infection: {
+        circular_patches: 4,
+        hair_loss: 3,
+        scaly_skin: 3,
+        scabs: 2,
+      },
+      parasite_infection: {
+        itching: 4,
+        fleas: 4,
+        scabies: 3,
+        hair_loss: 2,
+      },
+      allergy: {
+        itching: 3,
+        redness: 2,
+        swelling: 2,
+      },
+    },
+  }
+
+  const withTimeout = (promise, timeoutMs, label) => {
+    let timeoutId
+    const timeout = new Promise((_, reject) => {
+      timeoutId = window.setTimeout(() => reject(new Error(`${label} timed out`)), timeoutMs)
+    })
+
+    return Promise.race([promise, timeout]).finally(() => window.clearTimeout(timeoutId))
   }
 
   const handleSpeciesSelect = (selectedSpecies) => {
@@ -131,6 +191,105 @@ function HealthAnalysis() {
     await generateFinalDiagnosis()
   }
 
+  const buildDiagnosisFromImage = (result) => ({
+    ranked_conditions: [{
+      disease: result.condition,
+      percent: Math.round(result.confidence * 100),
+      level: result.confidence > 0.7 ? 'High' : result.confidence > 0.5 ? 'Moderate' : 'Low'
+    }]
+  })
+
+  const buildDiagnosisFromSymptoms = (result) => {
+    const ranked = result.ranked?.length
+      ? result.ranked
+      : [{ disease: result.primary, score: result.primary_score }]
+    const maxScore = Math.max(...ranked.map((item) => item.score), 1)
+
+    return {
+      ranked_conditions: ranked.map((item) => {
+        const percent = Math.min(95, Math.max(20, Math.round((item.score / maxScore) * 95)))
+        let level = 'Low'
+        if (item.score >= 7) {
+          level = 'High'
+        } else if (item.score >= 4) {
+          level = 'Moderate'
+        }
+
+        return {
+          disease: item.disease,
+          percent,
+          level
+        }
+      })
+    }
+  }
+
+  const buildSymptomResultFromAnswers = (answers) => {
+    const rules = symptomRules[species] || {}
+    const scores = Object.fromEntries(Object.keys(rules).map((disease) => [disease, 0]))
+
+    Object.entries(answers).forEach(([symptomId, answer]) => {
+      if (!answer) return
+
+      Object.entries(rules).forEach(([disease, diseaseSymptoms]) => {
+        if (symptomId in diseaseSymptoms) {
+          scores[disease] += diseaseSymptoms[symptomId]
+        }
+      })
+    })
+
+    const ranked = Object.entries(scores)
+      .map(([disease, score]) => ({ disease, score }))
+      .sort((a, b) => b.score - a.score)
+    const primary = ranked[0] || { disease: 'healthy', score: 0 }
+
+    return {
+      species,
+      primary: primary.disease,
+      primary_score: primary.score,
+      ranked,
+      responses: answers
+    }
+  }
+
+  const buildLocalCombinedDiagnosis = (imageData, symptomData) => {
+    const scores = new Map()
+
+    if (imageData) {
+      scores.set(imageData.condition, (scores.get(imageData.condition) || 0) + imageData.confidence * 10)
+      imageData.alternatives?.forEach((alternative) => {
+        scores.set(
+          alternative.class,
+          (scores.get(alternative.class) || 0) + alternative.confidence * 5
+        )
+      })
+    }
+
+    if (symptomData) {
+      const ranked = symptomData.ranked?.length
+        ? symptomData.ranked
+        : [{ disease: symptomData.primary, score: symptomData.primary_score }]
+      const maxScore = Math.max(...ranked.map((item) => item.score), 1)
+
+      ranked.forEach((item) => {
+        scores.set(
+          item.disease,
+          (scores.get(item.disease) || 0) + (item.score / maxScore) * 10
+        )
+      })
+    }
+
+    return {
+      ranked_conditions: Array.from(scores.entries())
+        .sort((a, b) => b[1] - a[1])
+        .map(([disease, score]) => ({
+          disease,
+          percent: Math.min(100, Math.max(1, Math.round(score * 5))),
+          level: score > 12 ? 'High' : score > 6 ? 'Moderate' : 'Low'
+        }))
+    }
+  }
+
   const generateFinalDiagnosis = async (symptomData = null) => {
     // Use passed symptom data or fall back to state
     const currentSymptomResult = symptomData || symptomResult
@@ -140,37 +299,23 @@ function HealthAnalysis() {
     try {
       // If we have both image and symptom results, combine them
       if (imageResult && currentSymptomResult) {
-        const combined = await api.combineDiagnosis(imageResult, currentSymptomResult)
-        setFinalDiagnosis(combined)
+        try {
+          const combined = await withTimeout(
+            api.combineDiagnosis(imageResult, currentSymptomResult),
+            8000,
+            'Diagnosis combine'
+          )
+          setFinalDiagnosis(combined)
+        } catch (err) {
+          console.warn('Server-side diagnosis combine failed, using local fallback:', err)
+          setFinalDiagnosis(buildLocalCombinedDiagnosis(imageResult, currentSymptomResult))
+        }
       } else if (imageResult) {
         // Only image result available
-        setFinalDiagnosis({
-          ranked_conditions: [{
-            disease: imageResult.condition,
-            percent: Math.round(imageResult.confidence * 100),
-            level: imageResult.confidence > 0.7 ? 'High' : imageResult.confidence > 0.5 ? 'Moderate' : 'Low'
-          }]
-        })
+        setFinalDiagnosis(buildDiagnosisFromImage(imageResult))
       } else if (currentSymptomResult) {
         // Only symptom result available
-        const symptomDisease = currentSymptomResult.primary
-        const symptomScore = currentSymptomResult.primary_score
-        
-        // Calculate confidence level based on symptom score
-        let level = 'Low'
-        if (symptomScore >= 7) {
-          level = 'High'
-        } else if (symptomScore >= 4) {
-          level = 'Moderate'
-        }
-        
-        setFinalDiagnosis({
-          ranked_conditions: [{
-            disease: symptomDisease,
-            percent: Math.min(95, Math.max(20, symptomScore * 12)), // Scale score to percentage
-            level: level
-          }]
-        })
+        setFinalDiagnosis(buildDiagnosisFromSymptoms(currentSymptomResult))
       } else {
         // No results - show healthy/default state
         setFinalDiagnosis({
@@ -188,7 +333,8 @@ function HealthAnalysis() {
       }
 
       setStep('results')
-    } catch {
+    } catch (err) {
+      console.error('Error generating final diagnosis:', err)
       setError('Failed to generate final diagnosis. Please try again.')
     } finally {
       setLoading(false)
@@ -215,29 +361,51 @@ function HealthAnalysis() {
 
   const handleSymptomAnswer = async (answer) => {
     if (!symptomSessionId || !currentQuestion) return
+    const symptomId = currentQuestion.symptom_id
+    const nextAnswers = {
+      ...symptomAnswers,
+      [symptomId]: answer === 'yes'
+    }
     
     console.log('Submitting answer:', {
       sessionId: symptomSessionId,
-      symptomId: currentQuestion.symptom_id,
+      symptomId: symptomId,
       answer: answer
     })
     
     setLoading(true)
+    setError(null)
+    setSymptomAnswers(nextAnswers)
     
     try {
-      const response = await api.answerSymptomQuestion(
-        symptomSessionId, 
-        currentQuestion.symptom_id, 
-        answer
+      const response = await withTimeout(
+        api.answerSymptomQuestion(
+          symptomSessionId,
+          symptomId,
+          answer
+        ),
+        15000,
+        'Symptom answer'
       )
       
       console.log('Response received:', response)
       
       // The backend returns {next_question: null} when done
-      if (response.next_question === null) {
+      if (!response.next_question) {
         // No more questions - get final results
         console.log("No more questions, fetching results...");
-        const results = await api.getSymptomResults(symptomSessionId);
+        setCurrentQuestion(null);
+        let results
+        try {
+          results = await withTimeout(
+            api.getSymptomResults(symptomSessionId),
+            10000,
+            'Symptom results'
+          );
+        } catch (err) {
+          console.warn('Symptom results request failed, using local answers:', err)
+          results = buildSymptomResultFromAnswers(nextAnswers)
+        }
         setSymptomResult(results);
         await generateFinalDiagnosis(results);
       } else {
@@ -266,6 +434,7 @@ function HealthAnalysis() {
     setQuestionCount(0)
     setMaxQuestions(8)
     setSymptomResult(null)
+    setSymptomAnswers({})
     setFinalDiagnosis(null)
     setError(null)
     analysisRecordedRef.current = false

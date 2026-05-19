@@ -68,13 +68,27 @@ const listScheduleTemplates = async (userId, petId) => {
 };
 
 const upsertOccurrence = async (template, dueAt) => {
+  const dueAtIso = dueAt.toISOString();
+  const rescheduled = await db.query(
+    `SELECT *
+     FROM reminder_occurrences
+     WHERE schedule_template_id = $1
+       AND metadata ? 'rescheduledFrom'
+       AND (metadata->>'rescheduledFrom')::timestamptz = $2::timestamptz
+     ORDER BY updated_at DESC
+     LIMIT 1`,
+    [template.id, dueAtIso]
+  );
+
+  if (rescheduled.rows[0]) return rescheduled.rows[0];
+
   const result = await db.query(
     `INSERT INTO reminder_occurrences (schedule_template_id, pet_id, due_at, status, metadata)
      VALUES ($1, $2, $3, 'pending', $4::jsonb)
      ON CONFLICT (schedule_template_id, due_at) DO UPDATE
        SET metadata = reminder_occurrences.metadata
      RETURNING *`,
-    [template.id, template.pet_id, dueAt.toISOString(), serialize(template.metadata, {})]
+    [template.id, template.pet_id, dueAtIso, serialize(template.metadata, {})]
   );
   return result.rows[0];
 };
@@ -115,14 +129,39 @@ const generateOccurrencesForUser = async (userId, { petId = null, horizonDays = 
 const listReminderOccurrences = async (userId, { petId = null, status = null } = {}) => {
   await markOverdueOccurrences(userId);
   const result = await db.query(
-    `SELECT ro.*, st.type, st.title, st.description, st.recurrence_rule, st.preferred_times, st.timezone
-     FROM reminder_occurrences ro
-     LEFT JOIN schedule_templates st ON st.id = ro.schedule_template_id
-     JOIN pets p ON p.id = ro.pet_id
-     WHERE p.user_id = $1
-       AND ($2::uuid IS NULL OR p.id = $2)
-       AND ($3::text IS NULL OR ro.status = $3)
-     ORDER BY COALESCE(ro.snoozed_until, ro.due_at) ASC`,
+    `WITH ranked_reminders AS (
+       SELECT
+         ro.*,
+         st.type,
+         st.title,
+         st.description,
+         st.recurrence_rule,
+         st.preferred_times,
+         st.start_date AS schedule_start_date,
+         st.timezone,
+         CASE
+           WHEN st.type = 'vaccine' THEN row_number() OVER (
+             PARTITION BY ro.schedule_template_id
+             ORDER BY
+               CASE WHEN ro.status IN ('pending', 'overdue', 'snoozed') THEN 0 ELSE 1 END,
+               CASE WHEN ro.due_at::date = st.start_date THEN 0 ELSE 1 END,
+               CASE WHEN ro.metadata ? 'rescheduledFrom' THEN 0 ELSE 1 END,
+               ro.updated_at DESC,
+               ro.due_at ASC
+           )
+           ELSE 1
+         END AS visible_rank
+       FROM reminder_occurrences ro
+       LEFT JOIN schedule_templates st ON st.id = ro.schedule_template_id
+       JOIN pets p ON p.id = ro.pet_id
+       WHERE p.user_id = $1
+         AND ($2::uuid IS NULL OR p.id = $2)
+         AND ($3::text IS NULL OR ro.status = $3)
+     )
+     SELECT *
+     FROM ranked_reminders
+     WHERE type <> 'vaccine' OR visible_rank = 1
+     ORDER BY COALESCE(snoozed_until, due_at) ASC`,
     [userId, petId, status]
   );
   return result.rows;
@@ -130,7 +169,7 @@ const listReminderOccurrences = async (userId, { petId = null, status = null } =
 
 const getOccurrenceForUser = async (userId, occurrenceId) => {
   const result = await db.query(
-    `SELECT ro.*, st.type, st.title, st.description, st.recurrence_rule, st.preferred_times, st.timezone
+    `SELECT ro.*, st.type, st.title, st.description, st.recurrence_rule, st.preferred_times, st.start_date AS schedule_start_date, st.timezone
      FROM reminder_occurrences ro
      LEFT JOIN schedule_templates st ON st.id = ro.schedule_template_id
      JOIN pets p ON p.id = ro.pet_id
@@ -163,7 +202,12 @@ const updateOccurrenceLifecycle = async (userId, occurrenceId, action, payload =
     },
     reschedule: {
       status: 'pending',
-      set: 'due_at = $4, snoozed_until = NULL',
+      set: `due_at = $4,
+            snoozed_until = NULL,
+            metadata = COALESCE(ro.metadata, '{}'::jsonb) || jsonb_build_object(
+              'rescheduledFrom',
+              COALESCE(ro.metadata->>'rescheduledFrom', ro.due_at::text)
+            )`,
       extra: payload.dueAt,
       log: 'rescheduled'
     }
@@ -177,6 +221,17 @@ const updateOccurrenceLifecycle = async (userId, occurrenceId, action, payload =
 
   const params = [userId, occurrenceId, transition.status];
   if (transition.extra) params.push(transition.extra);
+
+  if (action === 'reschedule' && occurrence.schedule_template_id) {
+    await db.query(
+      `DELETE FROM reminder_occurrences
+       WHERE schedule_template_id = $1
+         AND id <> $2
+         AND due_at = $3::timestamptz
+         AND status IN ('pending', 'overdue', 'snoozed')`,
+      [occurrence.schedule_template_id, occurrenceId, payload.dueAt]
+    );
+  }
 
   const result = await db.query(
     `UPDATE reminder_occurrences ro
@@ -195,8 +250,25 @@ const updateOccurrenceLifecycle = async (userId, occurrenceId, action, payload =
     metadata: { type: occurrence.type, previousDueAt: occurrence.due_at, ...payload.metadata }
   });
 
-  if (action === 'complete' || action === 'skip') {
-    await generateOccurrencesForUser(userId, { petId: occurrence.pet_id, horizonDays: 60 });
+  if (action === 'reschedule' && occurrence.type === 'vaccine' && occurrence.schedule_template_id) {
+    await db.query(
+      `UPDATE schedule_templates
+       SET start_date = $2::date
+       WHERE id = $1`,
+      [occurrence.schedule_template_id, payload.dueAt]
+    );
+
+    await db.query(
+      `DELETE FROM reminder_occurrences
+       WHERE schedule_template_id = $1
+         AND id <> $2
+         AND status IN ('pending', 'overdue', 'snoozed')`,
+      [occurrence.schedule_template_id, occurrenceId]
+    );
+  }
+
+  if ((action === 'complete' || action === 'skip') && occurrence.type !== 'vaccine' && occurrence.schedule_template_id) {
+    await generateOccurrencesForTemplate(userId, occurrence.schedule_template_id, { horizonDays: 60 });
   }
 
   return result.rows[0];

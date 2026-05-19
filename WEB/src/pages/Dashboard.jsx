@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { AlertTriangle, CalendarClock, CheckCircle, HeartPulse, Plus, Syringe } from 'lucide-react'
-import { careApi } from '../api'
+import { AlertTriangle, CalendarClock, CheckCircle, HeartPulse, MessageCircle, Plus, Syringe, Users } from 'lucide-react'
+import { careApi, socialApi } from '../api'
 import PetCard from '../components/PetCard'
 import { EmptyState, LoadingState } from '../components/StateViews'
 import { useAuth } from '../auth/useAuth'
@@ -15,6 +15,7 @@ function Dashboard() {
   const { pets, selectedPet, loading, refreshPets } = usePets()
   const [reminders, setReminders] = useState([])
   const [insights, setInsights] = useState([])
+  const [socialSummary, setSocialSummary] = useState(null)
   const [vaccines, setVaccines] = useState([])
 
   useEffect(() => {
@@ -34,6 +35,7 @@ function Dashboard() {
       setVaccines(vaccineData.vaccines || [])
     }
     loadDashboard().catch(() => {})
+    socialApi.summary().then((data) => setSocialSummary(data.summary)).catch(() => {})
   }, [pets.length])
 
   useEffect(() => {
@@ -76,6 +78,13 @@ function Dashboard() {
         <article><CalendarClock /><strong>{stats.overdue}</strong><span>Overdue tasks</span></article>
         <article><Syringe /><strong>{stats.vaccines}</strong><span>Open vaccines</span></article>
         <article><AlertTriangle /><strong>{stats.alerts}</strong><span>Health alerts</span></article>
+      </section>
+
+      <section className="metric-grid">
+        <article><Users /><strong>{socialSummary?.pendingRequests || 0}</strong><span>Connection requests</span></article>
+        <article><MessageCircle /><strong>{socialSummary?.unreadMessages || 0}</strong><span>Unread messages</span></article>
+        <article><CalendarClock /><strong>{socialSummary?.upcomingMeetups || 0}</strong><span>Nearby meetups</span></article>
+        <article><AlertTriangle /><strong>{socialSummary?.activeLostPetAlerts || 0}</strong><span>Lost-pet alerts</span></article>
       </section>
 
       {!pets.length ? (

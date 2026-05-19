@@ -223,8 +223,12 @@ export const careApi = {
     });
   },
 
-  listReminders(petId) {
-    return request(`/api/schedules${petId ? `?petId=${petId}` : ''}`);
+  listReminders(petId, options = {}) {
+    const params = new URLSearchParams();
+    if (petId) params.set('petId', petId);
+    if (options.generate === false) params.set('generate', 'false');
+
+    return request(`/api/schedules${params.toString() ? `?${params}` : ''}`);
   },
 
   createReminder(payload) {
@@ -317,6 +321,119 @@ export const careApi = {
 
   analyzeSymptoms(payload) {
     return request('/api/insights/symptoms/analyze', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  }
+};
+
+export const socialApi = {
+  summary() {
+    return request('/api/social/summary');
+  },
+
+  getLocation() {
+    return request('/api/social/location');
+  },
+
+  saveLocation(payload) {
+    return request('/api/social/location', {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  nearby(filters = {}) {
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') params.set(key, value);
+    });
+    return request(`/api/social/nearby${params.toString() ? `?${params}` : ''}`);
+  },
+
+  listConnections() {
+    return request('/api/social/connections');
+  },
+
+  requestConnection(receiverId) {
+    return request('/api/social/connections', {
+      method: 'POST',
+      body: JSON.stringify({ receiverId })
+    });
+  },
+
+  updateConnection(id, status) {
+    return request(`/api/social/connections/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status })
+    });
+  },
+
+  conversations() {
+    return request('/api/social/messages');
+  },
+
+  messages(userId) {
+    return request(`/api/social/messages/${userId}`);
+  },
+
+  sendMessage(payload) {
+    return request('/api/social/messages', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  groups() {
+    return request('/api/social/groups');
+  },
+
+  createGroup(payload) {
+    return request('/api/social/groups', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  joinGroup(id) {
+    return request(`/api/social/groups/${id}/join`, { method: 'POST' });
+  },
+
+  meetups() {
+    return request('/api/social/meetups');
+  },
+
+  createMeetup(payload) {
+    return request('/api/social/meetups', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  joinMeetup(id) {
+    return request(`/api/social/meetups/${id}/join`, { method: 'POST' });
+  },
+
+  lostPets() {
+    return request('/api/social/lost-pets');
+  },
+
+  createLostPetAlert(payload) {
+    return request('/api/social/lost-pets', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  blockUser(payload) {
+    return request('/api/social/safety/block', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  reportUser(payload) {
+    return request('/api/social/safety/report', {
       method: 'POST',
       body: JSON.stringify(payload)
     });

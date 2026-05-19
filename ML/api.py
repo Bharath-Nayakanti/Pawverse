@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Optional, List, Dict, Any
 import sys
 
-from fastapi import FastAPI, File, UploadFile, HTTPException, Form
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form, Body
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import torch
@@ -74,6 +74,10 @@ class CombinedDiagnosis(BaseModel):
     ranked_conditions: List[Dict[str, Any]]
     image_result: Optional[DiseaseResponse]
     symptom_result: Optional[SymptomResponse]
+
+class CombinedDiagnosisRequest(BaseModel):
+    image_result: Optional[DiseaseResponse] = None
+    symptom_result: Optional[SymptomResponse] = None
 
 class SymptomStartResponse(BaseModel):
     session_id: str
@@ -572,8 +576,7 @@ async def recommend_vaccines(payload: VaccineRecommendationRequest):
 @app.post("/diagnosis/combine")
 
 async def combine_diagnosis(
-    image_result: Optional[DiseaseResponse] = None,
-    symptom_result: Optional[SymptomResponse] = None
+    payload: CombinedDiagnosisRequest = Body(...)
 ):
     """
     Combine image and symptom results for final diagnosis
@@ -585,6 +588,8 @@ async def combine_diagnosis(
     Returns: Combined ranked diagnosis
     """
     try:
+        image_result = payload.image_result
+        symptom_result = payload.symptom_result
         combined_scores = {}
         
         # Image scores (0–10 scale)

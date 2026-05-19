@@ -347,3 +347,158 @@ CREATE TRIGGER update_appointments_updated_at BEFORE UPDATE ON appointments
 DROP TRIGGER IF EXISTS update_medications_updated_at ON medications;
 CREATE TRIGGER update_medications_updated_at BEFORE UPDATE ON medications
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- PawVerse local social and community ecosystem
+CREATE TABLE IF NOT EXISTS user_locations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    latitude NUMERIC(9, 6) NOT NULL,
+    longitude NUMERIC(9, 6) NOT NULL,
+    area_label VARCHAR(160),
+    visibility_mode VARCHAR(40) NOT NULL DEFAULT 'nearby' CHECK (visibility_mode IN ('invisible', 'nearby', 'friends_only', 'pet_only', 'hidden_location')),
+    visibility_radius_km NUMERIC(6, 2) NOT NULL DEFAULT 10,
+    is_visible BOOLEAN DEFAULT true,
+    pets_visible BOOLEAN DEFAULT true,
+    messages_allowed BOOLEAN DEFAULT true,
+    connection_requests_allowed BOOLEAN DEFAULT true,
+    manual_location BOOLEAN DEFAULT false,
+    location_updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id)
+);
+
+CREATE TABLE IF NOT EXISTS connections (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    requester_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    receiver_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status VARCHAR(30) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected', 'removed', 'blocked')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CHECK (requester_id <> receiver_id)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_connections_pair_unique
+ON connections (LEAST(requester_id, receiver_id), GREATEST(requester_id, receiver_id));
+
+CREATE TABLE IF NOT EXISTS messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    sender_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    receiver_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    message TEXT NOT NULL,
+    image_url TEXT,
+    read_status BOOLEAN DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CHECK (sender_id <> receiver_id)
+);
+
+CREATE TABLE IF NOT EXISTS community_groups (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(160) NOT NULL,
+    description TEXT,
+    location VARCHAR(160),
+    category VARCHAR(60) DEFAULT 'community',
+    visibility VARCHAR(30) DEFAULT 'public' CHECK (visibility IN ('public', 'nearby', 'friends_only', 'private')),
+    created_by UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS group_members (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    group_id UUID NOT NULL REFERENCES community_groups(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    role VARCHAR(30) DEFAULT 'member',
+    joined_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(group_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS meetups (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    organizer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(180) NOT NULL,
+    description TEXT,
+    meetup_time TIMESTAMP WITH TIME ZONE NOT NULL,
+    approximate_location VARCHAR(180) NOT NULL,
+    visibility VARCHAR(30) DEFAULT 'nearby' CHECK (visibility IN ('public', 'nearby', 'friends_only', 'group')),
+    max_participants INTEGER,
+    category VARCHAR(60) DEFAULT 'playdate',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS meetup_participants (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    meetup_id UUID NOT NULL REFERENCES meetups(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status VARCHAR(30) DEFAULT 'going' CHECK (status IN ('going', 'interested', 'cancelled')),
+    joined_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(meetup_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS lost_pet_alerts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    pet_id UUID REFERENCES pets(id) ON DELETE SET NULL,
+    last_seen_area VARCHAR(180) NOT NULL,
+    description TEXT,
+    photo_url TEXT,
+    status VARCHAR(30) DEFAULT 'active' CHECK (status IN ('active', 'found', 'closed')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS user_blocks (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    blocker_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    blocked_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    reason TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(blocker_id, blocked_id),
+    CHECK (blocker_id <> blocked_id)
+);
+
+CREATE TABLE IF NOT EXISTS user_reports (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    reporter_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    reported_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    target_type VARCHAR(40) DEFAULT 'user',
+    target_id UUID,
+    reason VARCHAR(80) NOT NULL,
+    details TEXT,
+    status VARCHAR(30) DEFAULT 'queued' CHECK (status IN ('queued', 'reviewing', 'resolved', 'dismissed')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_locations_user_id ON user_locations(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_locations_visible ON user_locations(is_visible, visibility_mode);
+CREATE INDEX IF NOT EXISTS idx_user_locations_lat_lng ON user_locations(latitude, longitude);
+CREATE INDEX IF NOT EXISTS idx_connections_requester ON connections(requester_id, status);
+CREATE INDEX IF NOT EXISTS idx_connections_receiver ON connections(receiver_id, status);
+CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(sender_id, receiver_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_community_groups_category ON community_groups(category);
+CREATE INDEX IF NOT EXISTS idx_group_members_user ON group_members(user_id);
+CREATE INDEX IF NOT EXISTS idx_meetups_time ON meetups(meetup_time);
+CREATE INDEX IF NOT EXISTS idx_lost_pet_alerts_status ON lost_pet_alerts(status, created_at);
+CREATE INDEX IF NOT EXISTS idx_user_blocks_blocker ON user_blocks(blocker_id);
+CREATE INDEX IF NOT EXISTS idx_user_reports_reporter ON user_reports(reporter_id);
+
+DROP TRIGGER IF EXISTS update_user_locations_updated_at ON user_locations;
+CREATE TRIGGER update_user_locations_updated_at BEFORE UPDATE ON user_locations
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_connections_updated_at ON connections;
+CREATE TRIGGER update_connections_updated_at BEFORE UPDATE ON connections
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_community_groups_updated_at ON community_groups;
+CREATE TRIGGER update_community_groups_updated_at BEFORE UPDATE ON community_groups
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_meetups_updated_at ON meetups;
+CREATE TRIGGER update_meetups_updated_at BEFORE UPDATE ON meetups
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_lost_pet_alerts_updated_at ON lost_pet_alerts;
+CREATE TRIGGER update_lost_pet_alerts_updated_at BEFORE UPDATE ON lost_pet_alerts
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

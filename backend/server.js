@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -12,10 +13,12 @@ const healthRecordRoutes = require('./routes/healthRecords');
 const insightRoutes = require('./routes/insights');
 const petRoutes = require('./routes/pets');
 const scheduleRoutes = require('./routes/schedules');
+const socialRoutes = require('./routes/social');
 const uploadRoutes = require('./routes/uploads');
 const vaccineRoutes = require('./routes/vaccines');
 const { authenticateToken } = require('./middleware/auth');
 const { startReminderLifecycleJob } = require('./jobs/reminderLifecycleJob');
+const { registerSocialSocket } = require('./sockets/socialSocket');
 
 const app = express();
 const PORT = process.env.PORT || 8001;
@@ -87,6 +90,7 @@ app.use('/api/health-records', authenticateToken, healthRecordRoutes);
 app.use('/api/appointments', authenticateToken, appointmentRoutes);
 app.use('/api/insights', authenticateToken, insightRoutes);
 app.use('/api/uploads', authenticateToken, uploadRoutes);
+app.use('/api/social', authenticateToken, socialRoutes);
 
 // Proxy ML service requests
 const mlServiceUrl = process.env.ML_SERVICE_URL || 'http://localhost:8000';
@@ -137,7 +141,10 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+const server = http.createServer(app);
+registerSocialSocket(server);
+
+server.listen(PORT, () => {
   console.log(`🚀 Backend server running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`🔐 Auth endpoints: http://localhost:${PORT}/api/auth`);
