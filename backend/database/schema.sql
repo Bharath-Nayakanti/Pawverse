@@ -502,3 +502,178 @@ CREATE TRIGGER update_meetups_updated_at BEFORE UPDATE ON meetups
 DROP TRIGGER IF EXISTS update_lost_pet_alerts_updated_at ON lost_pet_alerts;
 CREATE TRIGGER update_lost_pet_alerts_updated_at BEFORE UPDATE ON lost_pet_alerts
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- PawVerse pet-only community Q&A
+CREATE TABLE IF NOT EXISTS qa_user_reputation (
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    role_label VARCHAR(40) DEFAULT 'New User' CHECK (role_label IN ('New User', 'Trusted Owner', 'Experienced Owner', 'Verified Vet', 'Trainer', 'Breeder')),
+    reputation_points INTEGER DEFAULT 0,
+    contribution_score INTEGER DEFAULT 0,
+    helpful_answer_score INTEGER DEFAULT 0,
+    badges JSONB DEFAULT '[]'::jsonb,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS qa_tags (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(80) UNIQUE NOT NULL,
+    slug VARCHAR(90) UNIQUE NOT NULL,
+    category VARCHAR(60) DEFAULT 'general',
+    follower_count INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS qa_questions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(220) NOT NULL,
+    body TEXT NOT NULL,
+    pet_type VARCHAR(40) DEFAULT 'general' CHECK (pet_type IN ('dog', 'cat', 'bird', 'fish', 'exotic', 'general')),
+    category VARCHAR(60) DEFAULT 'general',
+    urgency VARCHAR(30) DEFAULT 'normal' CHECK (urgency IN ('low', 'normal', 'medium', 'high', 'emergency')),
+    images JSONB DEFAULT '[]'::jsonb,
+    location_label VARCHAR(180),
+    latitude NUMERIC(9, 6),
+    longitude NUMERIC(9, 6),
+    status VARCHAR(30) DEFAULT 'published' CHECK (status IN ('draft', 'published', 'rejected', 'flagged', 'closed')),
+    moderation_label VARCHAR(40),
+    moderation_confidence NUMERIC(5, 4),
+    moderation_action VARCHAR(30),
+    ai_summary TEXT,
+    view_count INTEGER DEFAULT 0,
+    answer_count INTEGER DEFAULT 0,
+    vote_score INTEGER DEFAULT 0,
+    saved_count INTEGER DEFAULT 0,
+    accepted_answer_id UUID,
+    metadata JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS qa_question_tags (
+    question_id UUID NOT NULL REFERENCES qa_questions(id) ON DELETE CASCADE,
+    tag_id UUID NOT NULL REFERENCES qa_tags(id) ON DELETE CASCADE,
+    PRIMARY KEY (question_id, tag_id)
+);
+
+CREATE TABLE IF NOT EXISTS qa_answers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    question_id UUID NOT NULL REFERENCES qa_questions(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    parent_answer_id UUID REFERENCES qa_answers(id) ON DELETE CASCADE,
+    body TEXT NOT NULL,
+    images JSONB DEFAULT '[]'::jsonb,
+    status VARCHAR(30) DEFAULT 'published' CHECK (status IN ('published', 'rejected', 'flagged', 'deleted')),
+    moderation_label VARCHAR(40),
+    moderation_confidence NUMERIC(5, 4),
+    is_accepted BOOLEAN DEFAULT false,
+    helpful_score INTEGER DEFAULT 0,
+    vote_score INTEGER DEFAULT 0,
+    metadata JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS qa_votes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    question_id UUID REFERENCES qa_questions(id) ON DELETE CASCADE,
+    answer_id UUID REFERENCES qa_answers(id) ON DELETE CASCADE,
+    value INTEGER NOT NULL CHECK (value IN (-1, 1)),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CHECK (
+      (question_id IS NOT NULL AND answer_id IS NULL)
+      OR (question_id IS NULL AND answer_id IS NOT NULL)
+    )
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_qa_votes_question_unique ON qa_votes(user_id, question_id) WHERE question_id IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_qa_votes_answer_unique ON qa_votes(user_id, answer_id) WHERE answer_id IS NOT NULL;
+
+CREATE TABLE IF NOT EXISTS qa_saved_questions (
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    question_id UUID NOT NULL REFERENCES qa_questions(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, question_id)
+);
+
+CREATE TABLE IF NOT EXISTS qa_tag_follows (
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    tag_id UUID NOT NULL REFERENCES qa_tags(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, tag_id)
+);
+
+CREATE TABLE IF NOT EXISTS qa_reports (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    reporter_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    question_id UUID REFERENCES qa_questions(id) ON DELETE CASCADE,
+    answer_id UUID REFERENCES qa_answers(id) ON DELETE CASCADE,
+    reason VARCHAR(80) NOT NULL,
+    details TEXT,
+    status VARCHAR(30) DEFAULT 'open' CHECK (status IN ('open', 'reviewed', 'dismissed', 'actioned')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS qa_moderation_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    question_id UUID REFERENCES qa_questions(id) ON DELETE CASCADE,
+    answer_id UUID REFERENCES qa_answers(id) ON DELETE CASCADE,
+    input_text TEXT NOT NULL,
+    label VARCHAR(60),
+    confidence NUMERIC(5, 4),
+    action VARCHAR(30),
+    categories JSONB DEFAULT '{}'::jsonb,
+    reasons JSONB DEFAULT '[]'::jsonb,
+    raw_response JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS qa_notifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    actor_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    question_id UUID REFERENCES qa_questions(id) ON DELETE CASCADE,
+    answer_id UUID REFERENCES qa_answers(id) ON DELETE CASCADE,
+    type VARCHAR(50) NOT NULL,
+    message TEXT NOT NULL,
+    read_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS qa_question_views (
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    question_id UUID NOT NULL REFERENCES qa_questions(id) ON DELETE CASCADE,
+    view_count INTEGER DEFAULT 1,
+    watch_seconds INTEGER DEFAULT 0,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, question_id)
+);
+
+ALTER TABLE qa_questions
+  DROP CONSTRAINT IF EXISTS fk_qa_questions_accepted_answer;
+ALTER TABLE qa_questions
+  ADD CONSTRAINT fk_qa_questions_accepted_answer
+  FOREIGN KEY (accepted_answer_id) REFERENCES qa_answers(id) ON DELETE SET NULL;
+
+CREATE INDEX IF NOT EXISTS idx_qa_questions_feed ON qa_questions(status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_qa_questions_pet_type ON qa_questions(pet_type);
+CREATE INDEX IF NOT EXISTS idx_qa_questions_category ON qa_questions(category);
+CREATE INDEX IF NOT EXISTS idx_qa_questions_location ON qa_questions(latitude, longitude);
+CREATE INDEX IF NOT EXISTS idx_qa_answers_question ON qa_answers(question_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_qa_notifications_user ON qa_notifications(user_id, read_at, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_qa_reports_status ON qa_reports(status);
+
+DROP TRIGGER IF EXISTS update_qa_questions_updated_at ON qa_questions;
+CREATE TRIGGER update_qa_questions_updated_at BEFORE UPDATE ON qa_questions
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_qa_answers_updated_at ON qa_answers;
+CREATE TRIGGER update_qa_answers_updated_at BEFORE UPDATE ON qa_answers
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_qa_user_reputation_updated_at ON qa_user_reputation;
+CREATE TRIGGER update_qa_user_reputation_updated_at BEFORE UPDATE ON qa_user_reputation
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

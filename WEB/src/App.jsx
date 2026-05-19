@@ -17,6 +17,13 @@ import Messages from './pages/Messages'
 import Nearby from './pages/Nearby'
 import Onboarding from './pages/Onboarding'
 import PetProfile from './pages/PetProfile'
+import AskQuestion from './pages/AskQuestion'
+import QandaFeed from './pages/QandaFeed'
+import QandaModeration from './pages/QandaModeration'
+import QandaNearby from './pages/QandaNearby'
+import QandaNotifications from './pages/QandaNotifications'
+import QandaSaved from './pages/QandaSaved'
+import QuestionDetail from './pages/QuestionDetail'
 import Records from './pages/Records'
 import Scheduler from './pages/Scheduler'
 import Welcome from './pages/Welcome'
@@ -40,6 +47,13 @@ function App() {
               <Route path="/records" element={<Records />} />
               <Route path="/health-analysis" element={<HealthAnalysis />} />
               <Route path="/emergency" element={<Emergency />} />
+              <Route path="/qanda" element={<QandaFeed />} />
+              <Route path="/qanda/ask" element={<AskQuestion />} />
+              <Route path="/qanda/questions/:id" element={<QuestionDetail />} />
+              <Route path="/qanda/saved" element={<QandaSaved />} />
+              <Route path="/qanda/notifications" element={<QandaNotifications />} />
+              <Route path="/qanda/nearby" element={<QandaNearby />} />
+              <Route path="/qanda/moderation" element={<QandaModeration />} />
               <Route path="/nearby" element={<Nearby />} />
               <Route path="/messages" element={<Messages />} />
               <Route path="/community" element={<Community />} />

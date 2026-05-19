@@ -1,0 +1,2014 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PawVerse Database Report</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7fb;
+      --panel: #ffffff;
+      --text: #172033;
+      --muted: #667085;
+      --line: #d8deea;
+      --accent: #2563eb;
+      --accent-soft: #eaf1ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--line);
+      background: rgba(246, 247, 251, 0.94);
+      backdrop-filter: blur(14px);
+      padding: 18px 24px;
+    }
+    h1, h2 { margin: 0; letter-spacing: 0; }
+    h1 { font-size: 24px; }
+    h2 { font-size: 18px; }
+    .subhead {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      padding: 5px 10px;
+    }
+    main {
+      display: grid;
+      gap: 18px;
+      padding: 20px 24px 36px;
+    }
+    .panel {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 10px 24px rgba(16, 24, 40, 0.06);
+    }
+    .panel > h2,
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid var(--line);
+      padding: 14px 16px;
+    }
+    .panel-header span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .muted {
+      margin: 0;
+      padding: 14px 16px;
+      color: var(--muted);
+    }
+    .table-wrap {
+      overflow: auto;
+      max-height: 70vh;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: var(--accent-soft);
+      color: #173d8f;
+      text-align: left;
+      white-space: nowrap;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 9px 10px;
+      vertical-align: top;
+    }
+    tr:hover td { background: #fbfdff; }
+    pre {
+      max-width: 520px;
+      margin: 0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font: inherit;
+    }
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .toc a {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--accent);
+      padding: 7px 11px;
+      font-size: 13px;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PawVerse Database Report</h1>
+    <div class="subhead">
+      <span class="chip">Database: pawverse_backend</span>
+      <span class="chip">Host: localhost:5432</span>
+      <span class="chip">Generated: 5/19/2026, 5:46:42 PM</span>
+    </div>
+  </header>
+  <main>
+    <nav class="toc">
+      <a href="#tables">Tables</a>
+      <a href="#qanda">Q&A</a>
+      <a href="#users">Users</a>
+      <a href="#columns">Columns</a>
+    </nav>
+    <div id="tables">
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Tables And Row Counts</h2>
+        <span>41 rows</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>table</th><th>rows</th></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td><pre>ai_insights</pre></td><td><pre>0</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>appointments</pre></td><td><pre>0</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>community_groups</pre></td><td><pre>1</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>connections</pre></td><td><pre>2</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_plans</pre></td><td><pre>0</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_preferences</pre></td><td><pre>0</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>group_members</pre></td><td><pre>1</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>health_records</pre></td><td><pre>1</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>lost_pet_alerts</pre></td><td><pre>0</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>medications</pre></td><td><pre>0</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>meetup_participants</pre></td><td><pre>0</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>meetups</pre></td><td><pre>0</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>messages</pre></td><td><pre>3</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>password_resets</pre></td><td><pre>0</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pet_images</pre></td><td><pre>1</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pets</pre></td><td><pre>4</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_answers</pre></td><td><pre>0</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_moderation_logs</pre></td><td><pre>1</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_notifications</pre></td><td><pre>0</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_question_tags</pre></td><td><pre>2</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_question_views</pre></td><td><pre>1</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>1</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_reports</pre></td><td><pre>0</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_saved_questions</pre></td><td><pre>0</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_tag_follows</pre></td><td><pre>0</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_tags</pre></td><td><pre>2</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_user_reputation</pre></td><td><pre>1</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_votes</pre></td><td><pre>1</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>refresh_tokens</pre></td><td><pre>51</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminder_occurrences</pre></td><td><pre>285</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminders</pre></td><td><pre>42</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>schedule_templates</pre></td><td><pre>14</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>symptom_logs</pre></td><td><pre>0</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>task_logs</pre></td><td><pre>113</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>uploaded_files</pre></td><td><pre>0</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_blocks</pre></td><td><pre>0</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_locations</pre></td><td><pre>3</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_reports</pre></td><td><pre>0</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>users</pre></td><td><pre>7</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccination_records</pre></td><td><pre>0</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccine_records</pre></td><td><pre>0</pre></td>
+              </tr>
+            
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+    <div id="qanda">
+      
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Recent Q&amp;A Questions</h2>
+        <span>1 row</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>id</th><th>user_id</th><th>title</th><th>body</th><th>pet_type</th><th>category</th><th>urgency</th><th>images</th><th>location_label</th><th>latitude</th><th>longitude</th><th>status</th><th>moderation_label</th><th>moderation_confidence</th><th>moderation_action</th><th>ai_summary</th><th>view_count</th><th>answer_count</th><th>vote_score</th><th>saved_count</th><th>accepted_answer_id</th><th>metadata</th><th>created_at</th><th>updated_at</th></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td><pre>4c6cdcf0-21bc-4dca-a5ca-8322f4a4c737</pre></td><td><pre>d064bdbd-050c-4a01-85e8-c5be72b98585</pre></td><td><pre>vomiting</pre></td><td><pre>vomiting and fever</pre></td><td><pre>general</pre></td><td><pre>Health</pre></td><td><pre>medium</pre></td><td><pre>[]</pre></td><td><pre></pre></td><td><pre></pre></td><td><pre></pre></td><td><pre>published</pre></td><td><pre>pet_related</pre></td><td><pre>0.6600</pre></td><td><pre>approve</pre></td><td><pre></pre></td><td><pre>2</pre></td><td><pre>0</pre></td><td><pre>1</pre></td><td><pre>0</pre></td><td><pre></pre></td><td><pre>{
+  &quot;moderationSource&quot;: &quot;local-rules&quot;
+}</pre></td><td><pre>2026-05-19T12:04:18.386Z</pre></td><td><pre>2026-05-19T12:04:33.198Z</pre></td>
+              </tr>
+            
+          </tbody>
+        </table>
+      </div>
+    </section>
+  
+      
+      <section class="panel">
+        <h2>Recent Q&amp;A Answers</h2>
+        <p class="muted">No rows found.</p>
+      </section>
+    
+      
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Recent Q&amp;A Tags</h2>
+        <span>2 rows</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>id</th><th>name</th><th>slug</th><th>category</th><th>follower_count</th><th>created_at</th></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td><pre>65267e40-c4e3-476a-bd14-d84ae5157647</pre></td><td><pre>Vomit</pre></td><td><pre>vomit</pre></td><td><pre>Health</pre></td><td><pre>0</pre></td><td><pre>2026-05-19T12:04:18.385Z</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>aacf0529-b903-41fb-9504-bd01992f4b08</pre></td><td><pre>Health</pre></td><td><pre>health</pre></td><td><pre>Health</pre></td><td><pre>0</pre></td><td><pre>2026-05-19T12:04:18.380Z</pre></td>
+              </tr>
+            
+          </tbody>
+        </table>
+      </div>
+    </section>
+  
+      
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Recent Q&amp;A Moderation Logs</h2>
+        <span>1 row</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>id</th><th>user_id</th><th>question_id</th><th>answer_id</th><th>input_text</th><th>label</th><th>confidence</th><th>action</th><th>categories</th><th>reasons</th><th>raw_response</th><th>created_at</th></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td><pre>77cc6630-0ed6-4b6c-b691-9a7f708c8087</pre></td><td><pre>d064bdbd-050c-4a01-85e8-c5be72b98585</pre></td><td><pre>4c6cdcf0-21bc-4dca-a5ca-8322f4a4c737</pre></td><td><pre></pre></td><td><pre>vomiting
+vomiting and fever</pre></td><td><pre>pet_related</pre></td><td><pre>0.6600</pre></td><td><pre>approve</pre></td><td><pre>{
+  &quot;tags&quot;: [
+    &quot;Health&quot;,
+    &quot;Vomit&quot;
+  ],
+  &quot;petType&quot;: &quot;general&quot;,
+  &quot;urgency&quot;: &quot;medium&quot;,
+  &quot;category&quot;: &quot;Health&quot;
+}</pre></td><td><pre>[]</pre></td><td><pre>{
+  &quot;label&quot;: &quot;pet_related&quot;,
+  &quot;action&quot;: &quot;approve&quot;,
+  &quot;source&quot;: &quot;local-rules&quot;,
+  &quot;reasons&quot;: [],
+  &quot;toxicity&quot;: {
+    &quot;score&quot;: 0.04,
+    &quot;toxic&quot;: false
+  },
+  &quot;categories&quot;: {
+    &quot;tags&quot;: [
+      &quot;Health&quot;,
+      &quot;Vomit&quot;
+    ],
+    &quot;petType&quot;: &quot;general&quot;,
+    &quot;urgency&quot;: &quot;medium&quot;,
+    &quot;category&quot;: &quot;Health&quot;
+  },
+  &quot;confidence&quot;: 0.6599999999999999
+}</pre></td><td><pre>2026-05-19T12:04:18.394Z</pre></td>
+              </tr>
+            
+          </tbody>
+        </table>
+      </div>
+    </section>
+  
+    </div>
+    <div id="users">
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Recent Users</h2>
+        <span>7 rows</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>id</th><th>email</th><th>password_hash</th><th>first_name</th><th>last_name</th><th>created_at</th><th>updated_at</th><th>last_login</th><th>is_active</th><th>email_verified</th></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td><pre>f4c0eb62-25c0-428e-bc3d-8237716d598b</pre></td><td><pre>nearby.luna@example.com</pre></td><td><pre>$2a$12$8UI8TYKzOpaGoN1TR/DuNewLwiUPOK8XNuForX7pjtDXVVCaHp3YK</pre></td><td><pre>Meera</pre></td><td><pre>Shah</pre></td><td><pre>2026-05-17T07:14:19.899Z</pre></td><td><pre>2026-05-17T07:14:19.899Z</pre></td><td><pre></pre></td><td><pre>true</pre></td><td><pre>true</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>45726f17-f0b6-410b-9ce1-e08a9587ad85</pre></td><td><pre>nearby.bruno@example.com</pre></td><td><pre>$2a$12$uG6ecjJrXJhWHrS0Dyk60OVyuUgoFyc4nY.kvwyxUD7pnB9EAXHG2</pre></td><td><pre>Aarav</pre></td><td><pre>Kapoor</pre></td><td><pre>2026-05-17T07:04:19.994Z</pre></td><td><pre>2026-05-17T07:14:19.880Z</pre></td><td><pre></pre></td><td><pre>true</pre></td><td><pre>true</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>d064bdbd-050c-4a01-85e8-c5be72b98585</pre></td><td><pre>test1@gmail.com</pre></td><td><pre>$2a$12$dyus.Aig66rLg7vRfKDJIOFpEBEt6i9gC6X0CXTgzmfqjRObvcYIu</pre></td><td><pre>test</pre></td><td><pre>no1</pre></td><td><pre>2026-05-17T04:32:32.805Z</pre></td><td><pre>2026-05-19T10:06:15.255Z</pre></td><td><pre>2026-05-19T10:06:15.255Z</pre></td><td><pre>true</pre></td><td><pre>false</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>a8f4f648-d1f7-4ea6-9b1a-7014e8fd136b</pre></td><td><pre>codex-auth-check@example.com</pre></td><td><pre>$2a$12$BJoeh1iqS0bwglxMZOXYSusEEae9d/f5psF2KXhEcsLUllKx/0TK.</pre></td><td><pre>Codex</pre></td><td><pre>Check</pre></td><td><pre>2026-05-17T04:29:15.357Z</pre></td><td><pre>2026-05-17T04:29:15.357Z</pre></td><td><pre></pre></td><td><pre>true</pre></td><td><pre>false</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>d4a26e83-6fc4-411b-89b7-5d2fb5ae027c</pre></td><td><pre>test2@gmail.com</pre></td><td><pre>$2a$12$3KB3mSmJ9q8elD2pKgkBye3VCvakgTEmcNEKmPgVsRd4BNp3MlFFe</pre></td><td><pre>test</pre></td><td><pre>two</pre></td><td><pre>2026-05-11T11:45:53.521Z</pre></td><td><pre>2026-05-11T12:17:00.338Z</pre></td><td><pre>2026-05-11T12:17:00.338Z</pre></td><td><pre>true</pre></td><td><pre>false</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>fc19b626-230e-45db-81a6-aa910bc2d6fb</pre></td><td><pre>newuser@example.com</pre></td><td><pre>$2a$12$30URKqqFak6v0o23aUyECefPbw5JzVrtkXE2lzMsg0A8yOuGd.Nnq</pre></td><td><pre>New</pre></td><td><pre>User</pre></td><td><pre>2026-05-11T11:44:07.321Z</pre></td><td><pre>2026-05-11T11:44:13.413Z</pre></td><td><pre>2026-05-11T11:44:13.413Z</pre></td><td><pre>true</pre></td><td><pre>false</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>49709bb5-f320-4d19-b460-fb5c82507157</pre></td><td><pre>test@example.com</pre></td><td><pre>$2a$12$MMswcksB0GaDd8m5ltYSyukgI0i7Wbop.UoFZtLOI0jT8D4Cimnmi</pre></td><td><pre>Test</pre></td><td><pre>User</pre></td><td><pre>2026-05-05T20:39:36.650Z</pre></td><td><pre>2026-05-05T20:39:48.810Z</pre></td><td><pre>2026-05-05T20:39:48.810Z</pre></td><td><pre>true</pre></td><td><pre>false</pre></td>
+              </tr>
+            
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+    <div id="columns">
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Columns</h2>
+        <span>378 rows</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>table</th><th>column</th><th>type</th><th>nullable</th></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td><pre>ai_insights</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>ai_insights</pre></td><td><pre>pet_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>ai_insights</pre></td><td><pre>type</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>ai_insights</pre></td><td><pre>severity</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>ai_insights</pre></td><td><pre>title</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>ai_insights</pre></td><td><pre>summary</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>ai_insights</pre></td><td><pre>confidence</pre></td><td><pre>numeric</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>ai_insights</pre></td><td><pre>status</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>ai_insights</pre></td><td><pre>metadata</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>ai_insights</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>appointments</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>appointments</pre></td><td><pre>pet_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>appointments</pre></td><td><pre>vet_name</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>appointments</pre></td><td><pre>clinic_name</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>appointments</pre></td><td><pre>reason</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>appointments</pre></td><td><pre>scheduled_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>appointments</pre></td><td><pre>status</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>appointments</pre></td><td><pre>notes</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>appointments</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>appointments</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>community_groups</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>community_groups</pre></td><td><pre>title</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>community_groups</pre></td><td><pre>description</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>community_groups</pre></td><td><pre>location</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>community_groups</pre></td><td><pre>category</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>community_groups</pre></td><td><pre>visibility</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>community_groups</pre></td><td><pre>created_by</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>community_groups</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>community_groups</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>connections</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>connections</pre></td><td><pre>requester_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>connections</pre></td><td><pre>receiver_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>connections</pre></td><td><pre>status</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>connections</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>connections</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_plans</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_plans</pre></td><td><pre>pet_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_plans</pre></td><td><pre>calories_per_day</pre></td><td><pre>integer</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_plans</pre></td><td><pre>meals_per_day</pre></td><td><pre>integer</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_plans</pre></td><td><pre>quantity_per_meal</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_plans</pre></td><td><pre>hydration_goal_ml</pre></td><td><pre>integer</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_plans</pre></td><td><pre>food_suggestions</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_plans</pre></td><td><pre>notes</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_plans</pre></td><td><pre>is_active</pre></td><td><pre>boolean</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_plans</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_plans</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_preferences</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_preferences</pre></td><td><pre>pet_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_preferences</pre></td><td><pre>calories_per_day</pre></td><td><pre>integer</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_preferences</pre></td><td><pre>meals_per_day</pre></td><td><pre>integer</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_preferences</pre></td><td><pre>feeding_times</pre></td><td><pre>jsonb</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_preferences</pre></td><td><pre>diet_type</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_preferences</pre></td><td><pre>hydration_goal</pre></td><td><pre>integer</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_preferences</pre></td><td><pre>metadata</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_preferences</pre></td><td><pre>is_active</pre></td><td><pre>boolean</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_preferences</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>feeding_preferences</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>group_members</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>group_members</pre></td><td><pre>group_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>group_members</pre></td><td><pre>user_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>group_members</pre></td><td><pre>role</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>group_members</pre></td><td><pre>joined_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>health_records</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>health_records</pre></td><td><pre>pet_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>health_records</pre></td><td><pre>type</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>health_records</pre></td><td><pre>title</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>health_records</pre></td><td><pre>description</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>health_records</pre></td><td><pre>occurred_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>health_records</pre></td><td><pre>severity</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>health_records</pre></td><td><pre>metadata</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>health_records</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>health_records</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>lost_pet_alerts</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>lost_pet_alerts</pre></td><td><pre>user_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>lost_pet_alerts</pre></td><td><pre>pet_id</pre></td><td><pre>uuid</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>lost_pet_alerts</pre></td><td><pre>last_seen_area</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>lost_pet_alerts</pre></td><td><pre>description</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>lost_pet_alerts</pre></td><td><pre>photo_url</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>lost_pet_alerts</pre></td><td><pre>status</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>lost_pet_alerts</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>lost_pet_alerts</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>medications</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>medications</pre></td><td><pre>pet_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>medications</pre></td><td><pre>name</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>medications</pre></td><td><pre>dosage</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>medications</pre></td><td><pre>frequency</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>medications</pre></td><td><pre>starts_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>medications</pre></td><td><pre>ends_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>medications</pre></td><td><pre>notes</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>medications</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>medications</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>meetup_participants</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>meetup_participants</pre></td><td><pre>meetup_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>meetup_participants</pre></td><td><pre>user_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>meetup_participants</pre></td><td><pre>status</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>meetup_participants</pre></td><td><pre>joined_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>meetups</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>meetups</pre></td><td><pre>organizer_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>meetups</pre></td><td><pre>title</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>meetups</pre></td><td><pre>description</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>meetups</pre></td><td><pre>meetup_time</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>meetups</pre></td><td><pre>approximate_location</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>meetups</pre></td><td><pre>visibility</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>meetups</pre></td><td><pre>max_participants</pre></td><td><pre>integer</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>meetups</pre></td><td><pre>category</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>meetups</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>meetups</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>messages</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>messages</pre></td><td><pre>sender_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>messages</pre></td><td><pre>receiver_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>messages</pre></td><td><pre>message</pre></td><td><pre>text</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>messages</pre></td><td><pre>image_url</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>messages</pre></td><td><pre>read_status</pre></td><td><pre>boolean</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>messages</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>password_resets</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>password_resets</pre></td><td><pre>user_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>password_resets</pre></td><td><pre>token_hash</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>password_resets</pre></td><td><pre>expires_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>password_resets</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>password_resets</pre></td><td><pre>used</pre></td><td><pre>boolean</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pet_images</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pet_images</pre></td><td><pre>pet_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pet_images</pre></td><td><pre>image_url</pre></td><td><pre>text</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pet_images</pre></td><td><pre>predicted_species</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pet_images</pre></td><td><pre>predicted_breed</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pet_images</pre></td><td><pre>confirmed_breed</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pet_images</pre></td><td><pre>confidence</pre></td><td><pre>numeric</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pet_images</pre></td><td><pre>is_primary</pre></td><td><pre>boolean</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pet_images</pre></td><td><pre>metadata</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pet_images</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pets</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pets</pre></td><td><pre>user_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pets</pre></td><td><pre>name</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pets</pre></td><td><pre>species</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pets</pre></td><td><pre>breed</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pets</pre></td><td><pre>date_of_birth</pre></td><td><pre>date</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pets</pre></td><td><pre>age_years</pre></td><td><pre>numeric</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pets</pre></td><td><pre>gender</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pets</pre></td><td><pre>weight_kg</pre></td><td><pre>numeric</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pets</pre></td><td><pre>allergies</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pets</pre></td><td><pre>medical_conditions</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pets</pre></td><td><pre>activity_level</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pets</pre></td><td><pre>neutered_spayed</pre></td><td><pre>boolean</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pets</pre></td><td><pre>image_url</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pets</pre></td><td><pre>predicted_breed</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pets</pre></td><td><pre>confirmed_breed</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pets</pre></td><td><pre>breed_confidence</pre></td><td><pre>numeric</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pets</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>pets</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_answers</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_answers</pre></td><td><pre>question_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_answers</pre></td><td><pre>user_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_answers</pre></td><td><pre>parent_answer_id</pre></td><td><pre>uuid</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_answers</pre></td><td><pre>body</pre></td><td><pre>text</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_answers</pre></td><td><pre>images</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_answers</pre></td><td><pre>status</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_answers</pre></td><td><pre>moderation_label</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_answers</pre></td><td><pre>moderation_confidence</pre></td><td><pre>numeric</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_answers</pre></td><td><pre>is_accepted</pre></td><td><pre>boolean</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_answers</pre></td><td><pre>helpful_score</pre></td><td><pre>integer</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_answers</pre></td><td><pre>vote_score</pre></td><td><pre>integer</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_answers</pre></td><td><pre>metadata</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_answers</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_answers</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_moderation_logs</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_moderation_logs</pre></td><td><pre>user_id</pre></td><td><pre>uuid</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_moderation_logs</pre></td><td><pre>question_id</pre></td><td><pre>uuid</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_moderation_logs</pre></td><td><pre>answer_id</pre></td><td><pre>uuid</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_moderation_logs</pre></td><td><pre>input_text</pre></td><td><pre>text</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_moderation_logs</pre></td><td><pre>label</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_moderation_logs</pre></td><td><pre>confidence</pre></td><td><pre>numeric</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_moderation_logs</pre></td><td><pre>action</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_moderation_logs</pre></td><td><pre>categories</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_moderation_logs</pre></td><td><pre>reasons</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_moderation_logs</pre></td><td><pre>raw_response</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_moderation_logs</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_notifications</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_notifications</pre></td><td><pre>user_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_notifications</pre></td><td><pre>actor_id</pre></td><td><pre>uuid</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_notifications</pre></td><td><pre>question_id</pre></td><td><pre>uuid</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_notifications</pre></td><td><pre>answer_id</pre></td><td><pre>uuid</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_notifications</pre></td><td><pre>type</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_notifications</pre></td><td><pre>message</pre></td><td><pre>text</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_notifications</pre></td><td><pre>read_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_notifications</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_question_tags</pre></td><td><pre>question_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_question_tags</pre></td><td><pre>tag_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_question_views</pre></td><td><pre>user_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_question_views</pre></td><td><pre>question_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_question_views</pre></td><td><pre>view_count</pre></td><td><pre>integer</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_question_views</pre></td><td><pre>watch_seconds</pre></td><td><pre>integer</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_question_views</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>user_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>title</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>body</pre></td><td><pre>text</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>pet_type</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>category</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>urgency</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>images</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>location_label</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>latitude</pre></td><td><pre>numeric</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>longitude</pre></td><td><pre>numeric</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>status</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>moderation_label</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>moderation_confidence</pre></td><td><pre>numeric</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>moderation_action</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>ai_summary</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>view_count</pre></td><td><pre>integer</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>answer_count</pre></td><td><pre>integer</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>vote_score</pre></td><td><pre>integer</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>saved_count</pre></td><td><pre>integer</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>accepted_answer_id</pre></td><td><pre>uuid</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>metadata</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_questions</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_reports</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_reports</pre></td><td><pre>reporter_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_reports</pre></td><td><pre>question_id</pre></td><td><pre>uuid</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_reports</pre></td><td><pre>answer_id</pre></td><td><pre>uuid</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_reports</pre></td><td><pre>reason</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_reports</pre></td><td><pre>details</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_reports</pre></td><td><pre>status</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_reports</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_saved_questions</pre></td><td><pre>user_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_saved_questions</pre></td><td><pre>question_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_saved_questions</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_tag_follows</pre></td><td><pre>user_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_tag_follows</pre></td><td><pre>tag_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_tag_follows</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_tags</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_tags</pre></td><td><pre>name</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_tags</pre></td><td><pre>slug</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_tags</pre></td><td><pre>category</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_tags</pre></td><td><pre>follower_count</pre></td><td><pre>integer</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_tags</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_user_reputation</pre></td><td><pre>user_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_user_reputation</pre></td><td><pre>role_label</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_user_reputation</pre></td><td><pre>reputation_points</pre></td><td><pre>integer</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_user_reputation</pre></td><td><pre>contribution_score</pre></td><td><pre>integer</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_user_reputation</pre></td><td><pre>helpful_answer_score</pre></td><td><pre>integer</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_user_reputation</pre></td><td><pre>badges</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_user_reputation</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_votes</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_votes</pre></td><td><pre>user_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_votes</pre></td><td><pre>question_id</pre></td><td><pre>uuid</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_votes</pre></td><td><pre>answer_id</pre></td><td><pre>uuid</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_votes</pre></td><td><pre>value</pre></td><td><pre>integer</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_votes</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>qa_votes</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>refresh_tokens</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>refresh_tokens</pre></td><td><pre>user_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>refresh_tokens</pre></td><td><pre>token_hash</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>refresh_tokens</pre></td><td><pre>expires_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>refresh_tokens</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>refresh_tokens</pre></td><td><pre>is_revoked</pre></td><td><pre>boolean</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminder_occurrences</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminder_occurrences</pre></td><td><pre>schedule_template_id</pre></td><td><pre>uuid</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminder_occurrences</pre></td><td><pre>pet_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminder_occurrences</pre></td><td><pre>due_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminder_occurrences</pre></td><td><pre>completed_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminder_occurrences</pre></td><td><pre>skipped_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminder_occurrences</pre></td><td><pre>snoozed_until</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminder_occurrences</pre></td><td><pre>status</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminder_occurrences</pre></td><td><pre>metadata</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminder_occurrences</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminder_occurrences</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminders</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminders</pre></td><td><pre>pet_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminders</pre></td><td><pre>type</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminders</pre></td><td><pre>title</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminders</pre></td><td><pre>description</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminders</pre></td><td><pre>due_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminders</pre></td><td><pre>recurrence</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminders</pre></td><td><pre>status</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminders</pre></td><td><pre>completed_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminders</pre></td><td><pre>metadata</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminders</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>reminders</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>schedule_templates</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>schedule_templates</pre></td><td><pre>pet_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>schedule_templates</pre></td><td><pre>type</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>schedule_templates</pre></td><td><pre>title</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>schedule_templates</pre></td><td><pre>description</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>schedule_templates</pre></td><td><pre>recurrence_rule</pre></td><td><pre>jsonb</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>schedule_templates</pre></td><td><pre>preferred_times</pre></td><td><pre>jsonb</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>schedule_templates</pre></td><td><pre>start_date</pre></td><td><pre>date</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>schedule_templates</pre></td><td><pre>end_date</pre></td><td><pre>date</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>schedule_templates</pre></td><td><pre>timezone</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>schedule_templates</pre></td><td><pre>metadata</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>schedule_templates</pre></td><td><pre>is_active</pre></td><td><pre>boolean</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>schedule_templates</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>schedule_templates</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>symptom_logs</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>symptom_logs</pre></td><td><pre>pet_id</pre></td><td><pre>uuid</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>symptom_logs</pre></td><td><pre>symptoms</pre></td><td><pre>jsonb</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>symptom_logs</pre></td><td><pre>severity</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>symptom_logs</pre></td><td><pre>urgency_score</pre></td><td><pre>integer</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>symptom_logs</pre></td><td><pre>recommendation</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>symptom_logs</pre></td><td><pre>metadata</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>symptom_logs</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>task_logs</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>task_logs</pre></td><td><pre>pet_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>task_logs</pre></td><td><pre>occurrence_id</pre></td><td><pre>uuid</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>task_logs</pre></td><td><pre>action</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>task_logs</pre></td><td><pre>notes</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>task_logs</pre></td><td><pre>metadata</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>task_logs</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>uploaded_files</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>uploaded_files</pre></td><td><pre>pet_id</pre></td><td><pre>uuid</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>uploaded_files</pre></td><td><pre>user_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>uploaded_files</pre></td><td><pre>category</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>uploaded_files</pre></td><td><pre>file_name</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>uploaded_files</pre></td><td><pre>file_type</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>uploaded_files</pre></td><td><pre>file_url</pre></td><td><pre>text</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>uploaded_files</pre></td><td><pre>storage_provider</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>uploaded_files</pre></td><td><pre>metadata</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>uploaded_files</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_blocks</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_blocks</pre></td><td><pre>blocker_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_blocks</pre></td><td><pre>blocked_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_blocks</pre></td><td><pre>reason</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_blocks</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_locations</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_locations</pre></td><td><pre>user_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_locations</pre></td><td><pre>latitude</pre></td><td><pre>numeric</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_locations</pre></td><td><pre>longitude</pre></td><td><pre>numeric</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_locations</pre></td><td><pre>area_label</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_locations</pre></td><td><pre>visibility_mode</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_locations</pre></td><td><pre>visibility_radius_km</pre></td><td><pre>numeric</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_locations</pre></td><td><pre>is_visible</pre></td><td><pre>boolean</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_locations</pre></td><td><pre>pets_visible</pre></td><td><pre>boolean</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_locations</pre></td><td><pre>messages_allowed</pre></td><td><pre>boolean</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_locations</pre></td><td><pre>connection_requests_allowed</pre></td><td><pre>boolean</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_locations</pre></td><td><pre>manual_location</pre></td><td><pre>boolean</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_locations</pre></td><td><pre>location_updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_locations</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_locations</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_reports</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_reports</pre></td><td><pre>reporter_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_reports</pre></td><td><pre>reported_user_id</pre></td><td><pre>uuid</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_reports</pre></td><td><pre>target_type</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_reports</pre></td><td><pre>target_id</pre></td><td><pre>uuid</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_reports</pre></td><td><pre>reason</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_reports</pre></td><td><pre>details</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_reports</pre></td><td><pre>status</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>user_reports</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>users</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>users</pre></td><td><pre>email</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>users</pre></td><td><pre>password_hash</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>users</pre></td><td><pre>first_name</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>users</pre></td><td><pre>last_name</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>users</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>users</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>users</pre></td><td><pre>last_login</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>users</pre></td><td><pre>is_active</pre></td><td><pre>boolean</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>users</pre></td><td><pre>email_verified</pre></td><td><pre>boolean</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccination_records</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccination_records</pre></td><td><pre>pet_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccination_records</pre></td><td><pre>vaccine_name</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccination_records</pre></td><td><pre>administered_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccination_records</pre></td><td><pre>next_due_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccination_records</pre></td><td><pre>veterinarian</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccination_records</pre></td><td><pre>notes</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccination_records</pre></td><td><pre>metadata</pre></td><td><pre>jsonb</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccination_records</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccination_records</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccine_records</pre></td><td><pre>id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccine_records</pre></td><td><pre>pet_id</pre></td><td><pre>uuid</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccine_records</pre></td><td><pre>vaccine_name</pre></td><td><pre>character varying</pre></td><td><pre>NO</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccine_records</pre></td><td><pre>status</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccine_records</pre></td><td><pre>administered_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccine_records</pre></td><td><pre>due_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccine_records</pre></td><td><pre>next_booster_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccine_records</pre></td><td><pre>provider</pre></td><td><pre>character varying</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccine_records</pre></td><td><pre>notes</pre></td><td><pre>text</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccine_records</pre></td><td><pre>created_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+              <tr>
+                <td><pre>vaccine_records</pre></td><td><pre>updated_at</pre></td><td><pre>timestamp with time zone</pre></td><td><pre>YES</pre></td>
+              </tr>
+            
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+  </main>
+</body>
+</html>

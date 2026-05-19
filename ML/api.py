@@ -110,6 +110,28 @@ class SymptomAnalysisRequest(BaseModel):
     species: str
     symptoms: List[str]
 
+class QandaModerationRequest(BaseModel):
+    title: str = ""
+    body: str = ""
+    tags: List[str] = []
+    petType: str = "general"
+
+PET_TERMS = {
+    "dog", "puppy", "cat", "kitten", "bird", "parrot", "fish", "aquarium", "rabbit",
+    "hamster", "turtle", "reptile", "vet", "vaccine", "food", "grooming", "training",
+    "adoption", "lost", "breed", "paw", "vomit", "diarrhea", "itching", "flea", "tick"
+}
+
+QANDA_CATEGORIES = {
+    "Health": ["vomit", "diarrhea", "bleeding", "seizure", "eye", "skin", "pain", "sick", "vet", "vaccine"],
+    "Food": ["food", "feed", "diet", "kibble", "treat", "nutrition"],
+    "Grooming": ["groom", "bath", "brush", "coat", "fur", "nail"],
+    "Training": ["train", "leash", "bite", "bark", "obedience", "potty"],
+    "Adoption": ["adopt", "rescue", "shelter", "foster"],
+    "Emergency": ["emergency", "poison", "seizure", "bleeding", "breathing", "choking"],
+    "Lost & Found": ["lost", "found", "missing", "stray"],
+}
+
 # ============================================================================
 # TRANSFORM
 # ============================================================================
@@ -149,6 +171,76 @@ async def root():
 async def health():
     """Health check endpoint"""
     return {"status": "healthy"}
+
+def _qanda_pet_type(text: str, fallback: str = "general") -> str:
+    body = text.lower()
+    if any(term in body for term in ["dog", "puppy", "canine", "bark"]):
+        return "dog"
+    if any(term in body for term in ["cat", "kitten", "feline", "litter"]):
+        return "cat"
+    if any(term in body for term in ["bird", "parrot", "cockatiel", "budgie"]):
+        return "bird"
+    if any(term in body for term in ["fish", "aquarium", "tank"]):
+        return "fish"
+    if any(term in body for term in ["rabbit", "hamster", "turtle", "snake", "lizard"]):
+        return "exotic"
+    return fallback
+
+def _qanda_category(text: str) -> str:
+    body = text.lower()
+    for category, terms in QANDA_CATEGORIES.items():
+        if any(term in body for term in terms):
+            return category
+    return "General"
+
+@app.post("/qanda/moderate")
+async def qanda_moderate(payload: QandaModerationRequest):
+    """
+    Lightweight pet-only Q&A moderation endpoint.
+    The production path can swap this heuristic layer for sentence-transformers
+    or a fine-tuned classifier without changing the Node API contract.
+    """
+    text = f"{payload.title} {payload.body} {' '.join(payload.tags)}".lower()
+    pet_hits = [term for term in PET_TERMS if term in text]
+    unsafe = any(term in text for term in ["crypto", "casino", "hack wifi", "free money", "kill yourself"])
+    unrelated = any(term in text for term in ["ipl", "stock market", "movie review", "politics"]) and not pet_hits
+
+    if unsafe:
+        label = "unsafe"
+        action = "reject"
+        confidence = 0.93
+    elif unrelated:
+        label = "unrelated"
+        action = "reject"
+        confidence = 0.89
+    elif not pet_hits:
+        label = "partially_related"
+        action = "flag"
+        confidence = 0.58
+    else:
+        label = "pet_related"
+        action = "approve"
+        confidence = min(0.98, 0.65 + len(pet_hits) * 0.06)
+
+    urgency = "emergency" if any(term in text for term in ["poison", "seizure", "bleeding", "choking", "breathing"]) else "normal"
+    category = _qanda_category(text)
+    pet_type = _qanda_pet_type(text, payload.petType)
+    tags = list(dict.fromkeys([pet_type.title(), category, *[term.title() for term in pet_hits[:4]]]))
+
+    return {
+        "label": label,
+        "confidence": confidence,
+        "action": action,
+        "toxicity": {"toxic": unsafe, "score": 0.91 if unsafe else 0.03},
+        "categories": {
+            "petType": pet_type,
+            "category": category,
+            "urgency": urgency,
+            "tags": tags
+        },
+        "reasons": ["Content is outside pet topics."] if action == "reject" else [],
+        "source": "fastapi-qanda-heuristic"
+    }
 
 @app.post("/predict/species", response_model=SpeciesResponse)
 async def predict_species(file: UploadFile = File(...)):

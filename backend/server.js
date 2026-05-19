@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -12,6 +14,7 @@ const feedingRoutes = require('./routes/feeding');
 const healthRecordRoutes = require('./routes/healthRecords');
 const insightRoutes = require('./routes/insights');
 const petRoutes = require('./routes/pets');
+const qandaRoutes = require('./routes/qanda');
 const scheduleRoutes = require('./routes/schedules');
 const socialRoutes = require('./routes/social');
 const uploadRoutes = require('./routes/uploads');
@@ -82,6 +85,7 @@ app.use('/api/auth', authRoutes);
 
 // Pet care platform routes
 app.use('/api/pets', authenticateToken, petRoutes);
+app.use('/api/qanda', authenticateToken, qandaRoutes);
 app.use('/api/schedules', authenticateToken, scheduleRoutes);
 app.use('/api/reminders', authenticateToken, scheduleRoutes);
 app.use('/api/vaccines', authenticateToken, vaccineRoutes);
@@ -125,6 +129,20 @@ app.use('/api/ml', authenticateToken, mlProxy);
 app.use('/predict', authenticateToken, mlProxy);
 app.use('/symptom', authenticateToken, mlProxy);
 app.use('/diagnosis', authenticateToken, mlProxy);
+
+const webDistPath = path.resolve(__dirname, '../WEB/dist');
+const webIndexPath = path.join(webDistPath, 'index.html');
+
+if (fs.existsSync(webIndexPath)) {
+  app.use(express.static(webDistPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/') || req.path === '/health') {
+      next();
+      return;
+    }
+    res.sendFile(webIndexPath);
+  });
+}
 
 // 404 handler
 app.use('*', (req, res) => {

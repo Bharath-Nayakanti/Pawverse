@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 const AUTH_STORAGE_KEY = 'pawverse.auth';
 
 export const tokenStorage = {
@@ -437,5 +437,89 @@ export const socialApi = {
       method: 'POST',
       body: JSON.stringify(payload)
     });
+  }
+};
+
+export const qandaApi = {
+  questions(filters = {}) {
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') params.set(key, value);
+    });
+    return request(`/api/qanda/questions${params.toString() ? `?${params}` : ''}`);
+  },
+
+  createQuestion(payload) {
+    return request('/api/qanda/questions', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  question(id, sort = 'top') {
+    return request(`/api/qanda/questions/${id}?sort=${encodeURIComponent(sort)}`);
+  },
+
+  answer(questionId, payload) {
+    return request(`/api/qanda/questions/${questionId}/answers`, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  voteQuestion(id, value) {
+    return request(`/api/qanda/questions/${id}/vote`, {
+      method: 'POST',
+      body: JSON.stringify({ value })
+    });
+  },
+
+  voteAnswer(id, value) {
+    return request(`/api/qanda/answers/${id}/vote`, {
+      method: 'POST',
+      body: JSON.stringify({ value })
+    });
+  },
+
+  saveQuestion(id) {
+    return request(`/api/qanda/questions/${id}/save`, { method: 'POST' });
+  },
+
+  acceptAnswer(questionId, answerId) {
+    return request(`/api/qanda/questions/${questionId}/accept/${answerId}`, { method: 'POST' });
+  },
+
+  similar(q) {
+    return request(`/api/qanda/similar?q=${encodeURIComponent(q)}`);
+  },
+
+  followTag(tag) {
+    return request('/api/qanda/tags/follow', {
+      method: 'POST',
+      body: JSON.stringify({ tag })
+    });
+  },
+
+  saved() {
+    return request('/api/qanda/saved');
+  },
+
+  notifications() {
+    return request('/api/qanda/notifications');
+  },
+
+  reputation() {
+    return request('/api/qanda/reputation');
+  },
+
+  report(payload) {
+    return request('/api/qanda/reports', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  moderation() {
+    return request('/api/qanda/moderation');
   }
 };

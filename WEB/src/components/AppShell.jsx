@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { AlertTriangle, CalendarDays, ClipboardList, HeartPulse, LayoutDashboard, LogOut, MapPin, MessageCircle, PawPrint, Users, UserPlus } from 'lucide-react'
+import { AlertTriangle, CalendarDays, ClipboardList, HeartPulse, HelpCircle, LayoutDashboard, LogOut, MapPin, MessageCircle, PawPrint, Users, UserPlus } from 'lucide-react'
 import { useAuth } from '../auth/useAuth'
 import { usePets } from '../context/usePets'
 
@@ -8,6 +8,7 @@ const navItems = [
   { to: '/scheduler', label: 'Scheduler', icon: CalendarDays },
   { to: '/records', label: 'Records', icon: ClipboardList },
   { to: '/health-analysis', label: 'AI Health', icon: HeartPulse },
+  { to: '/qanda', label: 'Pet Q&A', icon: HelpCircle },
   { to: '/nearby', label: 'Nearby', icon: MapPin },
   { to: '/messages', label: 'Messages', icon: MessageCircle },
   { to: '/community', label: 'Community', icon: Users },

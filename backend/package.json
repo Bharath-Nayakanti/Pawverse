@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
+    "db:inspect": "node scripts/inspect-db.js",
+    "db:report": "node scripts/db-report.js",
     "test": "jest"
   },
   "keywords": ["authentication", "nodejs", "postgresql", "jwt", "api"],
