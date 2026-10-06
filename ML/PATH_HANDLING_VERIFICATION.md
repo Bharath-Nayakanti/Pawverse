@@ -188,7 +188,7 @@ Enter image path: data/testpic/dog_image.jpg
 
 ### Test Scenario 3: Absolute Path
 ```bash
-Enter image path: /Users/barry/Desktop/pawverse-pet-classifier/ML/data/testpic/dog_image.jpg
+Enter image path: /Users/barry/Desktop/Pawverse/ML/data/testpic/dog_image.jpg
 ✓ Image analysis complete.
 ```
 **Expected:** ✅ Handles absolute path correctly
@@ -196,7 +196,7 @@ Enter image path: /Users/barry/Desktop/pawverse-pet-classifier/ML/data/testpic/d
 ### Test Scenario 4: Invalid Path
 ```bash
 Enter image path: nonexistent/path/image.jpg
-Path not found: /Users/barry/Desktop/pawverse-pet-classifier/ML/nonexistent/path/image.jpg
+Path not found: /Users/barry/Desktop/Pawverse/ML/nonexistent/path/image.jpg
 
 Enter image path (or press Enter to skip):
 ```
@@ -248,7 +248,7 @@ cd ML
 python main_pipeline.py
 # Then provide:
 # - Relative: data/testpic
-# - Absolute: /Users/barry/Desktop/pawverse-pet-classifier/ML/data/testpic
+# - Absolute: /Users/barry/Desktop/Pawverse/ML/data/testpic
 ```
 
 ### From parent directory:

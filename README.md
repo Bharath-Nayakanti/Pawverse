@@ -13,7 +13,7 @@ An intelligent system combining computer vision and symptom analysis to help dia
 ## 📁 Project Structure
 
 ```
-pawverse-pet-classifier/
+Pawverse/
 ├── ML/                    ← Machine Learning pipeline (Python scripts)
 │   ├── data/             ← Datasets
 │   ├── models/           ← Trained model checkpoints
@@ -50,7 +50,7 @@ This launches the unified pipeline that will:
 
 1. **Clone/Open the project:**
    ```bash
-   cd /Users/barry/Desktop/pawverse-pet-classifier
+   cd /Users/barry/Desktop/Pawverse
    ```
 
 2. **For ML pipeline:**

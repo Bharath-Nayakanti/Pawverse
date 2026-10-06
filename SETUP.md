@@ -5,7 +5,7 @@
 Your project has been reorganized into two main folders:
 
 ```
-pawverse-pet-classifier/
+Pawverse/
 ├── ML/        ← All machine learning code
 └── WEB/       ← Web application (placeholder)
 ```
