@@ -13,6 +13,25 @@ body {
   background: #f3f4f6;
 }
 
+:root {
+  --paw-pointer: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath fill='%23111627' stroke='%23ffffff' stroke-width='1.5' d='M15.8 14.7c3.5-.1 6.9 3.3 7.2 7 .2 2.7-1.5 4.8-4.2 4.6-1.1-.1-2-.5-2.8-.5-.9 0-1.8.5-2.9.6-2.7.2-4.5-1.8-4.4-4.5.2-3.8 3.6-7.1 7.1-7.2Z'/%3E%3Cellipse cx='7.8' cy='12.3' rx='3.1' ry='4.2' fill='%23111627' stroke='%23ffffff' stroke-width='1.5' transform='rotate(-24 7.8 12.3)'/%3E%3Cellipse cx='13.5' cy='7.8' rx='3' ry='4.3' fill='%23111627' stroke='%23ffffff' stroke-width='1.5' transform='rotate(-8 13.5 7.8)'/%3E%3Cellipse cx='19.8' cy='7.8' rx='3' ry='4.3' fill='%23111627' stroke='%23ffffff' stroke-width='1.5' transform='rotate(8 19.8 7.8)'/%3E%3Cellipse cx='25.2' cy='12.3' rx='3.1' ry='4.2' fill='%23111627' stroke='%23ffffff' stroke-width='1.5' transform='rotate(24 25.2 12.3)'/%3E%3C/svg%3E") 16 16, pointer;
+}
+
+a:hover,
+button:not(:disabled):hover,
+select:not(:disabled):hover,
+summary:hover,
+label:hover,
+[role='button']:hover,
+input[type='button']:not(:disabled):hover,
+input[type='submit']:not(:disabled):hover,
+input[type='reset']:not(:disabled):hover,
+input[type='checkbox']:not(:disabled):hover,
+input[type='radio']:not(:disabled):hover,
+input[type='file']:not(:disabled):hover {
+  cursor: var(--paw-pointer);
+}
+
 #root {
   width: 100%;
   min-height: 100vh;
