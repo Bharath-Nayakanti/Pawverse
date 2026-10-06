@@ -14,5 +14,9 @@ export default defineConfig(({ mode }) => {
         '/health': backendUrl,
       },
     },
+    preview: {
+      host: '0.0.0.0',
+      port: 4173,
+    },
   }
 })
