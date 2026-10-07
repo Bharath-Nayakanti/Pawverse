@@ -1,229 +1,109 @@
-# Pawverse Backend
+# PawVerse Backend
 
-Unified backend service for Pawverse Pet Health Assistant with authentication and API gateway.
+This is the main API layer for PawVerse. It handles authentication, pet management, reminders, scheduling, care tracking, community features, and secure forwarding to the ML intelligence service.
 
-## Architecture
+## What the backend does
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │  Backend API    │    │   ML Service    │
-│   (React)       │◄──►│   (Node.js)     │◄──►│   (Python)      │
-│   Port: 5173    │    │   Port: 8000    │    │   Port: 8001    │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-```
+- user authentication and JWT-based access control
+- pet profile creation and management
+- vaccination, feeding, and reminder workflows
+- health records and appointment-related endpoints
+- social network and nearby-owner discovery APIs
+- Q&A, moderation, and community features
+- connectivity to the Python ML service for image and symptom analysis
 
-## Features
+## Main folders
 
-- ✅ User authentication (register/login)
-- ✅ JWT token management (access + refresh)
-- ✅ PostgreSQL database integration
-- ✅ API gateway for ML service proxy
-- ✅ Rate limiting and security
-- ✅ Input validation
-- ✅ CORS support
-
-## Setup Instructions
-
-### 1. Prerequisites
-
-- Node.js (v16 or higher)
-- PostgreSQL (v12 or higher)
-- Python ML service (running on port 8001)
-
-### 2. Database Setup
-
-1. Create a new PostgreSQL database:
-```bash
-createdb pawverse_backend
+```text
+backend/
+├── config/            # database and service config
+├── database/          # schema and DB utilities
+├── geo/               # location and nearby-owner logic
+├── jobs/              # scheduled background jobs
+├── middleware/        # auth and request handling
+├── models/            # model definitions and data logic
+├── routes/            # API route modules
+├── schedulers/        # scheduling helpers
+├── services/          # business logic and feature services
+├── sockets/           # websocket-related features
+├── utils/             # validation and helpers
+├── validations/       # structured request validation
+├── server.js          # main Express app entry point
+├── package.json       # package manifest
+└── README.md
 ```
 
-2. Run the schema file:
-```bash
-psql -d pawverse_backend -f database/schema.sql
-```
+## Core API groups
 
-### 3. Environment Configuration
+- `/api/auth` — login, signup, profile access, refresh flow
+- `/api/pets` — pet CRUD and pet images
+- `/api/schedules` — recurring reminders and schedule templates
+- `/api/feeding` — feeding-related workflows
+- `/api/vaccines` — vaccine tracking
+- `/api/health-records` — medical records and notes
+- `/api/appointments` — care appointment APIs
+- `/api/insights` — pet insight and recommendation endpoints
+- `/api/social` — friend requests, messaging, groups, meetups, lost pets
+- `/api/qanda` — pet Q&A and moderation routes
+- `/api/ml` — ML proxy routes for species and disease classification
 
-1. Copy the environment template:
-```bash
-cp .env.example .env
-```
+## Environment variables
 
-2. Edit `.env` with your configuration:
+Create a `.env` file in the backend directory with values such as:
+
 ```env
-PORT=8000
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=pawverse_backend
-DB_USER=postgres
-DB_PASSWORD=your_password
-JWT_SECRET=your_super_secret_jwt_key_here
+PORT=8001
+NODE_ENV=development
+DATABASE_URL=postgresql://postgres:password@localhost:5432/pawverse
+JWT_SECRET=your_jwt_secret
 FRONTEND_URL=http://localhost:5173
-ML_SERVICE_URL=http://localhost:8001
+ML_SERVICE_URL=http://localhost:8000
 ```
 
-### 4. Install Dependencies
+## Run locally
 
 ```bash
+cd backend
 npm install
-```
-
-### 5. Start the Server
-
-Development mode:
-```bash
 npm run dev
 ```
 
 Production mode:
+
 ```bash
+cd backend
 npm start
 ```
 
-The server will start on `http://localhost:8000`
+## Database
 
-## API Endpoints
+The backend expects the PostgreSQL schema in:
 
-### Authentication Routes (`/api/auth`)
+- `backend/database/schema.sql`
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/register` | Register new user | No |
-| POST | `/login` | Login user | No |
-| POST | `/refresh` | Refresh access token | No |
-| GET | `/profile` | Get user profile | Yes |
-| POST | `/logout` | Logout user | Yes |
+Run it against your local or cloud database before hitting the app.
 
-### ML Service Routes (`/api/ml`)
+## Security and app behavior
 
-All ML service endpoints are proxied through `/api/ml`:
+- JWT authentication for protected routes
+- request validation with Joi
+- CORS settings for the frontend domain
+- rate limiting for abuse prevention
+- Express middleware for security and error handling
+- ML-service proxying with graceful fallback errors
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/ml/predict` | Disease prediction from images |
-| POST | `/api/ml/symptom/start` | Start symptom checker |
-| POST | `/api/ml/symptom/answer` | Answer symptom question |
-| GET | `/api/ml/symptom/results/{id}` | Get symptom results |
-| POST | `/api/ml/diagnosis/combine` | Combine image and symptom results |
-
-### Health Check
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/health` | Server health status |
-
-## API Usage Examples
-
-### Register User
+## Health check
 
 ```bash
-curl -X POST http://localhost:8000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "password": "password123",
-    "firstName": "John",
-    "lastName": "Doe"
-  }'
+curl http://localhost:8001/health
 ```
 
-### Login
+## Relationship to the rest of the app
 
-```bash
-curl -X POST http://localhost:8000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "password": "password123"
-  }'
-```
+- frontend calls the backend for user and app features
+- backend calls the ML service for prediction workflows
+- PostgreSQL stores users, pets, records, reminders, social connections, and app data
 
-### Access ML Service (Proxied)
+## Notes
 
-```bash
-curl -X POST http://localhost:8000/api/ml/predict \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-  -F "file=@pet_image.jpg" \
-  -F "species=dog"
-```
-
-## Security Features
-
-- **Password Hashing**: Uses bcrypt with 12 salt rounds
-- **JWT Tokens**: Access tokens (15min) + refresh tokens (7days)
-- **Rate Limiting**: 5 auth attempts per 15 minutes
-- **Input Validation**: Joi schemas for all inputs
-- **CORS Protection**: Configured for frontend domain
-- **Security Headers**: Helmet middleware
-
-## Database Schema
-
-### Users Table
-- `id`: UUID primary key
-- `email`: Unique email address
-- `password_hash`: Bcrypt hashed password
-- `first_name`, `last_name`: User name
-- `created_at`, `updated_at`: Timestamps
-- `last_login`: Last login timestamp
-- `is_active`: Account status
-- `email_verified`: Email verification status
-
-### Refresh Tokens Table
-- Stores refresh tokens for token rotation
-- Automatic expiration and revocation
-
-## Development
-
-### Project Structure
-
-```
-backend/
-├── config/
-│   └── database.js     # PostgreSQL connection
-├── middleware/
-│   └── auth.js         # Authentication middleware
-├── routes/
-│   └── auth.js         # Authentication routes
-├── utils/
-│   ├── jwt.js          # JWT utilities
-│   └── validation.js   # Input validation schemas
-├── database/
-│   └── schema.sql      # Database schema
-├── User.js             # User model
-├── server.js           # Express server with API gateway
-├── package.json
-└── README.md
-```
-
-### Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PORT` | Server port | 8000 |
-| `NODE_ENV` | Environment | development |
-| `DB_HOST` | Database host | localhost |
-| `DB_PORT` | Database port | 5432 |
-| `DB_NAME` | Database name | pawverse_backend |
-| `DB_USER` | Database user | postgres |
-| `DB_PASSWORD` | Database password | - |
-| `JWT_SECRET` | JWT secret key | - |
-| `JWT_EXPIRE` | JWT expiration | 15m |
-| `FRONTEND_URL` | Frontend URL | http://localhost:5173 |
-| `ML_SERVICE_URL` | ML service URL | http://localhost:8001 |
-
-## Integration with Frontend
-
-The frontend should use these endpoints:
-
-1. **Authentication**: `http://localhost:8000/api/auth/*`
-2. **ML Services**: `http://localhost:8000/api/ml/*`
-
-The backend handles:
-- Authentication and authorization
-- Token management
-- Request routing to ML service
-- Security and rate limiting
-
-## License
-
-MIT License
+This backend is the main application service for PawVerse; it is not just a simple auth server. It is the operational core of the full pet management platform.

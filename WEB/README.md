@@ -1,69 +1,83 @@
-# Pawverse Pet Health - Web Application
+# PawVerse Frontend
 
-React frontend for the Pawverse Pet Health Assistant, an AI-powered pet health diagnosis tool.
+This is the React web app for PawVerse. It provides the user-facing experience for pet ownership, health management, AI diagnosis, and community discovery.
 
-## Prerequisites
+## App features
 
-- Node.js 18+ and npm
-- Python 3.8+ with virtual environment
-- ML models trained and available in `ML/models/`
+- dashboard and pet overview
+- onboarding for new pet owners
+- pet records, images, and profile management
+- schedule and reminder planning
+- vaccination and care tracking
+- AI health analysis for pet photos
+- nearby pet owner discovery and local recommendations
+- community Q&A, messages, groups, and meetups
+- lost-pet alerts and social safety tools
 
-## Running the Application
+## Main structure
 
-### 1. Start the FastAPI Backend
-
-From the project root:
-
-```bash
-cd ML
-source ../venv/bin/activate  # or activate your venv
-python api.py
+```text
+WEB/
+├── src/             # React app source
+├── public/          # static assets
+├── package.json     # frontend dependencies and scripts
+├── vite.config.js   # Vite config
+├── index.html       # entry document
+├── README.md
+└── dist/            # production build output
 ```
 
-The API will run on `http://localhost:8000`
+## Run locally
 
-### 2. Start the React Frontend
-
-From the WEB directory:
+Install the dependencies:
 
 ```bash
 cd WEB
-npm install  # First time only
+npm install
+```
+
+Start the app in dev mode:
+
+```bash
+cd WEB
 npm run dev
 ```
 
-The frontend will run on `http://localhost:5173`
+The frontend will typically run on:
 
-## Application Structure
+- http://localhost:5173
 
-- **Home Page**: Landing page with feature overview
-- **Health Analysis Page**: Interactive ML-powered pet health diagnosis
-  - Species selection (dog/cat)
-  - Image upload and analysis
-  - Species mismatch detection
-  - Symptom questionnaire (8 adaptive questions)
-  - Combined diagnosis with confidence scores
+## Required environment variables
 
-## API Endpoints
+If your backend is not on the default local host, set the frontend API base URL. Example:
 
-- `POST /predict/species` - Predict species from image
-- `POST /predict/disease` - Predict disease from image
-- `POST /symptom/start` - Start symptom checker session
-- `POST /symptom/answer` - Submit symptom answer
-- `GET /symptom/results/{session_id}` - Get symptom results
-- `POST /diagnosis/combine` - Combine image and symptom results
+```env
+VITE_API_BASE_URL=http://localhost:8001
+```
 
-## Building for Production
+The app reads the backend base URL from either `VITE_API_BASE_URL` or `VITE_API_URL`.
+
+## Build for production
 
 ```bash
 cd WEB
 npm run build
 ```
 
-The built files will be in the `dist/` directory.
+The production bundle is output into the `dist/` folder.
 
-## Tech Stack
+## Relationship to the rest of the product
 
-- **Frontend**: React 19, Vite, React Router, Lucide Icons
-- **Backend**: FastAPI, PyTorch, TorchVision
-- **ML Models**: EfficientNet-B0 for disease and species classification
+- frontend talks to the Node backend for user and platform features
+- backend forwards AI image analysis to the Python ML service
+- app experience is consistent across care, diagnosis, scheduling, and social features
+
+## Notes
+
+This is not a simple single-page demo. It is the main user interface for a full pet management platform with AI-powered health support.
+
+## Related docs
+
+- [../README.md](../README.md)
+- [../backend/README.md](../backend/README.md)
+- [../ML/README.md](../ML/README.md)
