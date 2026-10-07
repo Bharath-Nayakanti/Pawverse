@@ -1,179 +1,283 @@
-# 🐾 PawVerse: AI Pet Health Assistant
+# PawVerse
 
-An intelligent system combining computer vision and symptom analysis to help diagnose pet health issues.
+PawVerse is a full pet management and health platform built for pet owners who want more than just AI predictions. It combines pet health tracking, reminders, AI-based diagnosis, nearby pet discovery, social networking, and community-driven care into one application.
 
-## 🎯 Project Overview
+## Product overview
 
-**PawVerse** is a comprehensive pet health assistant that uses:
-- 🖼️ **Image-based disease detection** - Analyzes pet skin conditions from photos
-- 🩺 **Symptom-based diagnosis** - Interactive questionnaire for disease prediction
-- 🐾 **Species classification** - Automatically detects dog or cat
-- 📊 **Intelligent combining** - Fuses both analysis methods for accurate diagnosis
+PawVerse gives users a place to:
 
-## 📁 Project Structure
+- manage pet profiles and health records
+- track vaccines, feeding routines, and care schedules
+- monitor reminders and recurring pet care activities
+- upload pet images for AI-powered disease and species analysis
+- receive symptom- and image-based health insights
+- find nearby pet owners, local pet communities, lost-pet alerts, and meetups
+- ask questions in a pet Q&A space and interact with a social network
 
+This is not only an ML project. It is a complete pet care and community platform with a strong AI layer embedded into the user experience.
+
+## Core features
+
+### Pet management
+
+- add and update pet profiles
+- manage pet images and health records
+- monitor key care information for each pet
+- store feeding, vaccination, and general care details
+
+### Care planning and reminders
+
+- generate schedule templates for feedings, grooming, vaccines, and preventives
+- create recurring reminder occurrences
+- complete, skip, snooze, or reschedule care tasks
+- track future pet care activities across a time horizon
+
+### AI health analysis
+
+- species detection from pet images
+- disease detection using trained ML models
+- symptom-based conversational analysis
+- hybrid diagnosis workflows combining image and symptom signals
+
+### Social and community features
+
+- nearby pet owner discovery by location and pet filters
+- connection requests and messaging
+- group creation and meetup planning
+- lost pet alerts and community awareness
+- safety reporting and user blocking tools
+- pet Q&A and community feed functionality
+
+### User experience
+
+- dashboard-based app flow
+- profile onboarding
+- protected authenticated routes
+- app shell with navigation for care, analysis, and social features
+
+## Architecture
+
+```text
+React Frontend (Vite)
+        │
+        ▼
+Node.js + Express API
+        │
+        ├── auth and user management
+        ├── pet profiles and records
+        ├── feeding, vaccines, schedules, reminders
+        ├── health insights and appointments
+        ├── Q&A and social/community features
+        ├── location-aware nearby pet discovery
+        └── ML service proxy
+        │
+        ▼
+Python ML Service (FastAPI)
+        │
+        ├── species prediction
+        ├── disease classification
+        ├── breed detection
+        └── symptom analysis endpoints
+        │
+        ▼
+PostgreSQL database
 ```
+
+## Repository structure
+
+```text
 Pawverse/
-├── ML/                    ← Machine Learning pipeline (Python scripts)
-│   ├── data/             ← Datasets
-│   ├── models/           ← Trained model checkpoints
-│   ├── main_pipeline.py  ← Main unified AI assistant
-│   ├── README.md         ← ML documentation
-│   └── [training & prediction scripts]
-│
-├── WEB/                   ← Web application (coming soon)
-│   ├── app.py            ← Flask/FastAPI web server
-│   ├── templates/        ← HTML templates
-│   ├── static/           ← CSS, JS, images
-│   ├── README.md         ← WEB documentation
-│   └── [API endpoints]
-│
-└── README.md             ← This file
+├── backend/                  # Main API and business logic
+│   ├── config/
+│   ├── database/
+│   ├── geo/
+│   ├── jobs/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── schedulers/
+│   ├── services/
+│   ├── sockets/
+│   ├── utils/
+│   ├── validations/
+│   ├── server.js
+│   ├── package.json
+│   └── README.md
+├── ML/                       # AI models and Python prediction code
+│   ├── api.py
+│   ├── hybrid_symptom_chatbot.py
+│   ├── predict_species.py
+│   ├── predict_disease_unified.py
+│   ├── predict_full.py
+│   ├── requirements.txt
+│   ├── models/
+│   └── README.md
+├── WEB/                      # React frontend app
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   ├── vite.config.js
+│   └── README.md
+├── README.md                 # Project overview
+├── .gitignore
+└── package.json              # Optional repo-level tooling or scripts
 ```
 
-## 🚀 Quick Start
+## Tech stack
 
-### Using the AI Pet Health Assistant
+- Frontend: React 19, Vite, React Router, Lucide icons
+- Backend: Node.js, Express, PostgreSQL, JWT auth, REST API
+- Real-time/social: WebSockets, location-aware community APIs
+- AI/ML: Python, FastAPI, PyTorch, TorchVision
+- Deployment patterns: Render/AWS-style backend hosting with separate ML service hosting
+
+## Main app modules
+
+The backend covers multiple product areas:
+
+- `auth` for login and user security
+- `pets` for pet profiles and records
+- `schedules` for triggers, recurring reminders, and schedule generation
+- `feeding` for nutrition-related workflows
+- `vaccines` for vaccine planning and tracking
+- `appointments` and `healthRecords` for care records
+- `insights` for pet-care analytics and intelligent recommendations
+- `social` for nearby pet owners, connections, groups, meetups, lost pets, safety, and messaging
+- `qanda` for pet question answering and moderation
+- `uploads` for media handling
+
+## Requirements
+
+Before running locally, install:
+
+- Node.js 18+
+- npm
+- Python 3.10+
+- PostgreSQL
+- Git
+
+## Local development
+
+### 1. Clone and install
+
+```bash
+git clone <repo-url>
+cd Pawverse
+```
+
+### 2. Start the backend
+
+```bash
+cd backend
+npm install
+cp .env.example .env
+npm run dev
+```
+
+Example backend environment:
+
+```env
+PORT=8001
+NODE_ENV=development
+DATABASE_URL=postgresql://postgres:password@localhost:5432/pawverse
+JWT_SECRET=your_jwt_secret
+FRONTEND_URL=http://localhost:5173
+ML_SERVICE_URL=http://localhost:8000
+```
+
+### 3. Start the ML service
 
 ```bash
 cd ML
-python main_pipeline.py
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn api:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-This launches the unified pipeline that will:
-1. Ask if you have a dog or cat
-2. Optionally analyze a photo of your pet
-3. Run an interactive symptom questionnaire
-4. Provide ranked diagnosis with recommendations
+### 4. Start the frontend
 
-### Setup
-
-1. **Clone/Open the project:**
-   ```bash
-   cd /Users/barry/Desktop/Pawverse
-   ```
-
-2. **For ML pipeline:**
-   ```bash
-   cd ML
-   pip install -r requirements.txt
-   python main_pipeline.py
-   ```
-
-3. **For Web application (WEB folder coming soon):**
-   ```bash
-   cd WEB
-   pip install -r requirements.txt
-   python app.py
-   ```
-
-## 📚 Documentation
-
-- **[ML Pipeline Documentation](ML/README.md)** - Training, prediction, and data preparation
-- **[WEB Application Documentation](WEB/README.md)** - Web interface and API endpoints
-
-## 🧬 Models Included
-
-| Model | Purpose | Input |
-|-------|---------|-------|
-| `pawverse_pet_classifier.pth` | Species detection (dog/cat) | Pet image |
-| `dog_disease_model.pth` | Dog disease classification | Dog image |
-| `cat_disease_model.pth` | Cat disease classification | Cat image |
-| `breed_classifier.pth` | Pet breed identification | Pet image |
-
-## 🎓 Key Features
-
-✅ **Image-based analysis** - Uses EfficientNet-B0 for disease detection  
-✅ **Symptom-based analysis** - Smart questionnaire with weighted scoring  
-✅ **Species auto-detection** - Detects mismatches and re-analyzes  
-✅ **Combined diagnosis** - Intelligently fuses image + symptom predictions  
-✅ **Professional output** - Ranked results with confidence levels  
-✅ **Safety disclaimers** - Always recommends veterinary consultation  
-
-## 💻 Tech Stack
-
-- **Deep Learning:** PyTorch, torchvision
-- **Models:** EfficientNet-B0
-- **Image Processing:** PIL, transforms
-- **Web (future):** Flask or FastAPI
-- **Device Support:** Apple Silicon (MPS), CUDA, CPU
-
-## ⚠️ Important Disclaimer
-
-This tool is **FOR INFORMATIONAL PURPOSES ONLY** and should **NOT** be used as a substitute for professional veterinary care.
-
-Always consult a licensed veterinarian for:
-- Medical diagnosis
-- Treatment recommendations  
-- Emergency situations
-- Any health concerns
-
-## 🔄 Workflow
-
-### Option 1: ML Pipeline Only
-```
-cd ML → main_pipeline.py
-  ↓
-User provides species
-  ↓
-(Optional) Upload pet image → predict_disease_unified.py
-  ↓
-(Optional) Answer symptom questions → hybrid_symptom_chatbot.py
-  ↓
-Combined diagnosis with recommendations
-```
-
-### Option 2: Web Application (Coming Soon)
-```
-cd WEB → app.py
-  ↓
-Upload pet image + select species
-  ↓
-API processes both disease and symptom analysis
-  ↓
-Web interface displays interactive results
-```
-
-## 📋 Example Usage
-
-**Command Line:**
 ```bash
-cd ML
-python main_pipeline.py
-# Select species → dog/cat
-# Upload image? → yes/no
-# Answer symptoms? → yes/no
-# Get combined diagnosis
+cd WEB
+npm install
+npm run dev
 ```
 
-**Individual Scripts:**
-```bash
-cd ML
+Common local ports:
 
-# Just analyze an image
-python predict_disease_unified.py dog data/testpic/dog_image.jpg
+- frontend: http://localhost:5173
+- backend: http://localhost:8001
+- ML API: http://localhost:8000
 
-# Just run symptom checker
-python hybrid_symptom_chatbot.py cat
+## Database setup
 
-# Get species only
-python predict_species.py data/testpic/any_pet.jpg
-```
+The backend expects PostgreSQL tables defined in:
 
-## 🎯 Next Steps
+- `backend/database/schema.sql`
 
-- [ ] Deploy web application
-- [ ] Add mobile app support
-- [ ] Integrate veterinary database
-- [ ] Add real-time video analysis
-- [ ] Expand to more pet species
+Initialize the database for the app before running the backend.
 
-## 📧 Support
+## ML integration
 
-See individual folder READMEs for detailed documentation:
-- [ML Documentation](ML/README.md)
-- [WEB Documentation](WEB/README.md)
+The ML service is an important feature, but only one part of the overall product. It handles:
+
+- species classification
+- dog and cat disease classification
+- breed prediction
+- symptom-based diagnosis and response flows
+
+The main API routes expose analysis features via the backend proxy, including:
+
+- `/health`
+- `/api/ml/predict/species`
+- `/api/ml/predict/disease`
+- `/api/ml/symptom/start`
+- `/api/ml/symptom/answer`
+- `/api/ml/symptom/results/{session_id}`
+
+## Deployment notes
+
+This project is designed to run in a multi-service deployment model:
+
+- frontend: static hosting or Vite deployment
+- backend: Node.js app hosting
+- database: PostgreSQL instance
+- ML: Python service hosted separately
+
+The backend uses environment variables such as:
+
+- `PORT`
+- `DATABASE_URL`
+- `JWT_SECRET`
+- `FRONTEND_URL`
+- `ML_SERVICE_URL`
+
+## Product positioning
+
+PawVerse is a pet care and community platform with AI-powered diagnosis as one of its core capabilities. It is built for:
+
+- pet owners tracking health and routines
+- discovery of nearby dog and cat communities
+- AI-assisted health checks and recommendations
+- pet-care planning and reminders
+- local social engagement around pets and lost-pet awareness
+
+## Important disclaimer
+
+PawVerse provides informational guidance and AI-assisted assistance. It is not a substitute for veterinary diagnosis or treatment.
+
+Users should always consult a licensed veterinarian for medical decisions, emergencies, and treatment recommendations.
+
+## Documentation
+
+- [backend/README.md](backend/README.md)
+- [ML/README.md](ML/README.md)
+- [WEB/README.md](WEB/README.md)
+
+## License
+
+This project is for educational and personal development use unless otherwise specified by the repository owner.
 
 ---
 
-**Made with ❤️ for pet lovers** 🐕🐈
+PawVerse combines pet management, community connection, and AI-driven health support in one platform.
