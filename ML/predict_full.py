@@ -6,10 +6,12 @@ import torch.nn as nn
 from PIL import Image
 from torchvision import models, transforms
 
-CATDOG_MODEL_PATH = Path("models/pawverse_pet_classifier.pth")
-BREED_MODEL_PATH = Path("models/breed_classifier_v2.pth")
-DEFAULT_IMAGE_PATH = Path("data/testpic/Pitbull.jpg.webp")
-TEST_IMAGE_DIRS = [Path("data/testpic"), Path("data/testpics")]
+ML_DIR = Path(__file__).resolve().parent
+
+CATDOG_MODEL_PATH = ML_DIR / "models" / "pawverse_pet_classifier.pth"
+BREED_MODEL_PATH = ML_DIR / "models" / "breed_classifier_v2.pth"
+DEFAULT_IMAGE_PATH = ML_DIR / "data" / "testpic" / "Pitbull.jpg.webp"
+TEST_IMAGE_DIRS = [ML_DIR / "data" / "testpic", ML_DIR / "data" / "testpics"]
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".avif", ".webp"}
 LOW_CONFIDENCE_THRESHOLD = 0.60
 

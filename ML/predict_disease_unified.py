@@ -6,12 +6,14 @@ import torch.nn as nn
 from PIL import Image
 from torchvision import models, transforms
 
+ML_DIR = Path(__file__).resolve().parent
+
 # -----------------------------
 # CONFIG
 # -----------------------------
-DOG_MODEL_PATH = Path("models/dog_disease_model.pth")
-CAT_MODEL_PATH = Path("models/cat_disease_model.pth")
-TEST_IMAGE_DIRS = [Path("data/testpic"), Path("data/testpics")]
+DOG_MODEL_PATH = ML_DIR / "models" / "dog_disease_model.pth"
+CAT_MODEL_PATH = ML_DIR / "models" / "cat_disease_model.pth"
+TEST_IMAGE_DIRS = [ML_DIR / "data" / "testpic", ML_DIR / "data" / "testpics"]
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".avif"}
 LOW_CONFIDENCE_THRESHOLD = 0.60
 

@@ -8,6 +8,9 @@ from typing import Optional, List, Dict, Any
 import sys
 
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form, Body
+
+ML_DIR = Path(__file__).resolve().parent
+TEMP_DIR = ML_DIR / "temp"
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import torch
@@ -255,8 +258,8 @@ async def predict_species(file: UploadFile = File(...)):
         image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
         
         # Save temp file for predict_species function
-        temp_path = Path("temp/temp_species_image.jpg")
-        temp_path.parent.mkdir(exist_ok=True)
+        temp_path = TEMP_DIR / "temp_species_image.jpg"
+        TEMP_DIR.mkdir(exist_ok=True)
         image.save(temp_path)
         
         # Predict
@@ -288,8 +291,8 @@ async def predict_breed(file: UploadFile = File(...)):
         image_bytes = await file.read()
         image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
 
-        temp_path = Path("temp/temp_breed_image.jpg")
-        temp_path.parent.mkdir(exist_ok=True)
+        temp_path = TEMP_DIR / "temp_breed_image.jpg"
+        TEMP_DIR.mkdir(exist_ok=True)
         image.save(temp_path)
 
         result = predict_full(temp_path)
@@ -338,8 +341,8 @@ async def predict_disease_endpoint(
         image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
         
         # Save temp file for predict_disease function
-        temp_path = Path("temp/temp_image.jpg")
-        temp_path.parent.mkdir(exist_ok=True)
+        temp_path = TEMP_DIR / "temp_image.jpg"
+        TEMP_DIR.mkdir(exist_ok=True)
         image.save(temp_path)
         
         # Predict

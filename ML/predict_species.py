@@ -4,7 +4,8 @@ from torchvision import models, transforms
 from PIL import Image
 from pathlib import Path
 
-MODEL_PATH = Path("models/pawverse_pet_classifier.pth")
+ML_DIR = Path(__file__).resolve().parent
+MODEL_PATH = ML_DIR / "models" / "pawverse_pet_classifier.pth"
 
 device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
 
